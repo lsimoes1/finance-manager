@@ -1,0 +1,225 @@
+<!-- Fundo dinâmico decorativo reduzido -->
+<div class="bg-shape-1"></div>
+<div class="bg-shape-2"></div>
+
+<div class="container-fluid main-content px-4 py-4 mb-5">
+  
+  <!-- ===================== CONTROLE DE PERÍODO ===================== -->
+  <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 mt-2 gap-3 position-relative" style="z-index: 1050;" [@fadeSlide]>
+    <div>
+      <h4 class="fw-bold tracking-wide m-0 text-foreground">Dashboard Analítico</h4>
+      <p class="text-muted m-0 small">Visão detalhada e gráficos do seu dinheiro</p>
+    </div>
+    
+    <div class="modern-period-selector d-flex align-items-center p-1 rounded-pill shadow-sm bg-surface border">
+      <div class="d-flex align-items-center ms-3 text-muted normal-emoji me-2">📅</div>
+      <div ngbDropdown class="d-inline-block">
+        <button type="button" class="btn btn-link text-decoration-none fw-bold text-primary p-1 border-0 minimal-select" id="dropdownMonthDash" ngbDropdownToggle>
+          {{ getSelectedMonthLabel() }}
+        </button>
+        <div ngbDropdownMenu aria-labelledby="dropdownMonthDash" class="shadow-sm border border-light-subtle rounded-4 py-2 mt-1">
+          <button type="button" ngbDropdownItem *ngFor="let m of months" (click)="selectedMonth = m.value; onPeriodChange()" [class.active]="selectedMonth === m.value">
+            {{ m.label }}
+          </button>
+        </div>
+      </div>
+      <div class="divider mx-2"></div>
+      <div ngbDropdown class="d-inline-block">
+        <button type="button" class="btn btn-link text-decoration-none fw-bold text-foreground p-1 border-0 minimal-select me-2" id="dropdownYearDash" ngbDropdownToggle>
+          {{ selectedYear }}
+        </button>
+        <div ngbDropdownMenu aria-labelledby="dropdownYearDash" class="shadow-sm border border-light-subtle rounded-4 py-2 mt-1">
+          <button type="button" ngbDropdownItem *ngFor="let y of availableYears" (click)="selectedYear = y; onPeriodChange()" [class.active]="selectedYear === y">
+            {{ y }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKELETON LOADING -->
+  <div *ngIf="isLoading" class="skeleton-container shadow-sm p-4" [@fadeSlide]>
+    <div class="skeleton-box width-30 mb-3" style="height: 20px;"></div>
+    <div class="skeleton-box height-lg mb-4" style="height: 150px;"></div>
+    <div class="skeleton-box height-lg mb-4" style="height: 250px;"></div>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+
+    <!-- TERMÔMETRO DE GASTOS VS RECEITAS -->
+    <div class="row mb-4" [@fadeSlide]>
+      <div class="col-12">
+        <div class="glass-card shadow-sm border border-surface p-4 rounded-4 bg-surface position-relative overflow-hidden">
+          <div class="d-flex justify-content-between align-items-end mb-2">
+            <div>
+              <h5 class="fw-bold text-foreground m-0"><span class="normal-emoji">🌡️</span> Termômetro do Mês</h5>
+              <p class="text-muted small m-0 mt-1">Percentual da sua receita que já foi gasto</p>
+            </div>
+            <div class="text-end">
+              <h3 class="fw-bolder m-0" [ngClass]="{'text-success': taxaGasto <= 0.5, 'text-warning': taxaGasto > 0.5 && taxaGasto <= 0.8, 'text-danger': taxaGasto > 0.8}">
+                {{ taxaGasto | percent:'1.0-1' }}
+              </h3>
+            </div>
+          </div>
+          
+          <div class="progress modern-progress mt-3 shadow-inner" style="height: 24px; border-radius: 12px; background: var(--glass-border);">
+            <div class="progress-bar progress-bar-striped progress-bar-animated rounded-pill fill-progress" 
+                 role="progressbar" 
+                 [style.--target-width]="(taxaGasto * 100) + '%'"
+                 [ngClass]="{
+                   'bg-success': taxaGasto <= 0.5,
+                   'bg-warning': taxaGasto > 0.5 && taxaGasto <= 0.8,
+                   'bg-danger': taxaGasto > 0.8
+                 }">
+            </div>
+          </div>
+          <div class="d-flex justify-content-between mt-2 pt-1 border-top border-surface">
+             <span class="small text-danger fw-bold lh-1 mt-1">Saídas: {{ totalGastos | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+             <span class="small text-success fw-bold lh-1 mt-1">Entradas: {{ totalReceitas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="row g-4 mb-5" [@barStagger]>
+      
+      <!-- MAIORES GASTOS (GRÁFICO DE PIZZA) E LISTA -->
+      <div class="col-lg-6">
+        <div class="glass-card shadow-sm border border-surface p-4 rounded-4 bg-surface h-100">
+          <h5 class="fw-bold text-foreground mb-4 border-bottom pb-2"><span class="normal-emoji">🍕</span> Maiores Gastos por Categoria</h5>
+          
+          <div *ngIf="gastosPorCategoria.length > 0" class="d-flex flex-column align-items-center mb-4">
+             <!-- Gráfico de Pizza CSS -->
+             <div class="pie-chart shadow-sm" [style.background]="'conic-gradient(' + conicGradientGastos + ')'"></div>
+             
+             <!-- Custo Total no Centro Virtual (Abaixo do Gráfico) -->
+             <div class="text-center mt-3">
+                <h3 class="fw-bolder text-foreground m-0">{{ totalGastos | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</h3>
+                <span class="text-muted small text-uppercase fw-bold">Total Despesas</span>
+             </div>
+          </div>
+
+          <div *ngIf="gastosPorCategoria.length > 0" class="category-list mt-3">
+            <div class="bar-row mb-3" *ngFor="let item of gastosPorCategoria" style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" (click)="openDetails('categoria', item)">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="fw-semibold text-foreground d-flex align-items-center gap-2">
+                  <span class="color-dot" [style.background-color]="item.cor"></span>
+                  {{ item.label }}
+                </span>
+                <span class="fw-bold text-muted">{{ item.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} ({{ item.percentual | percent:'1.0-1' }})</span>
+              </div>
+              <div class="progress" style="height: 8px; border-radius: 4px; background: var(--glass-border);">
+                <div class="progress-bar fill-progress" [style.--target-width]="(item.percentual * 100) + '%'" [style.background-color]="item.cor"></div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="gastosPorCategoria.length === 0" class="text-center py-5 text-muted">
+             <div class="fs-1 normal-emoji mb-2 opacity-50">🤷‍♂️</div>
+             Nenhum gasto registrado para análise neste mês.
+          </div>
+        </div>
+      </div>
+
+      <!-- MÉTODOS DE PAGAMENTO (BARRAS HORIZONTAIS) -->
+      <div class="col-lg-6">
+        <div class="glass-card shadow-sm border border-surface p-4 rounded-4 bg-surface h-100">
+          <h5 class="fw-bold text-foreground mb-4 border-bottom pb-2"><span class="normal-emoji">💳</span> Gastos por Forma de Pagamento</h5>
+          
+          <div *ngIf="gastosPorMetodo.length > 0">
+            <div class="bar-row mb-4 bg-surface p-3 rounded shadow-sm border" *ngFor="let item of gastosPorMetodo" style="border-left: 4px solid !important; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" [style.border-color]="item.cor" (click)="openDetails('metodo', item)">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="fw-bold fs-6 text-foreground">{{ item.label }}</span>
+                <span class="badge bg-light border text-foreground rounded-pill px-3 py-2 fs-6 shadow-sm">
+                  {{ item.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                </span>
+              </div>
+              <div class="progress mt-2" style="height: 12px; border-radius: 6px; background: var(--glass-border);">
+                <div class="progress-bar progress-bar-striped progress-bar-animated fill-progress" [style.--target-width]="(item.percentual * 100) + '%'" [style.background-color]="item.cor"></div>
+              </div>
+              <div class="text-end mt-1 text-muted small fw-bold">Representa {{ item.percentual | percent:'1.0-1' }}</div>
+            </div>
+          </div>
+
+          <div *ngIf="gastosPorMetodo.length === 0" class="text-center py-5 text-muted">
+             <div class="fs-1 normal-emoji mb-2 opacity-50">😴</div>
+             Sem uso de métodos de pagamento neste período.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+</div>
+
+<!-- Modal Detalhes Dashboard -->
+<div class="modal fade" id="dashDetailsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content modern-modal border-0 shadow-lg" style="min-height: 60vh;">
+      <div class="modal-header border-bottom mx-4 px-0 pb-3 mt-3 bg-surface">
+        <h4 class="modal-title fw-bolder text-foreground d-flex align-items-center gap-2">
+          {{ detailsModalTitle }}
+        </h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0 bg-light">
+        
+        <div class="p-4 mx-4 my-3 bg-surface rounded-4 shadow-sm border d-flex justify-content-between align-items-center">
+          <span class="text-muted fw-bold d-flex align-items-center gap-2">
+             <span class="normal-emoji fs-4">🧮</span>
+             <span>Total neste grupo:</span>
+          </span>
+          <h2 class="m-0 fw-black text-danger">
+            {{ detailsModalValue | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+          </h2>
+        </div>
+
+        <div class="table-responsive px-4 pb-4">
+          <table class="table table-borderless table-hover align-middle mb-0 bg-surface shadow-sm rounded-4 overflow-hidden border">
+            <thead class="bg-light text-muted small text-uppercase fw-bold">
+              <tr>
+                <th class="ps-4 py-3">Data</th>
+                <th class="py-3">Descrição</th>
+                <th class="py-3 d-none d-md-table-cell">Categoria / Mét.</th>
+                <th class="py-3 text-end pe-4">Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let t of detailsModalTransactions" class="border-bottom">
+                <td class="ps-4 text-nowrap">
+                  <span class="fw-bold text-foreground fs-5">{{ t.data | date:'dd' }}</span><br>
+                  <small class="text-secondary">{{ t.data | date:'MMM yyyy' }}</small>
+                </td>
+                <td>
+                  <span class="fw-bolder text-foreground">{{ t.descricao }}</span>
+                  <div class="mt-1 d-flex gap-1" *ngIf="t.tipo_name !== 'avulsa'">
+                    <span *ngIf="t.tipo_name === 'parcelada'" class="badge border border-warning text-warning-dark rounded-pill fw-bold" style="font-size:0.65rem">Parcela {{ t.parcela_atual }} / {{ t.recorrencia_total_parcelas }}</span>
+                    <span *ngIf="t.tipo_name === 'fixa'" class="badge border border-info text-info rounded-pill fw-bold" style="font-size:0.65rem">Fixo</span>
+                  </div>
+                </td>
+                <td class="d-none d-md-table-cell">
+                  <span class="badge-soft mb-1"><span class="normal-emoji me-1">{{ t.categoria_icone || '🏷️' }}</span> {{ t.categoria }}</span><br>
+                  <span class="badge-soft"><span class="normal-emoji me-1">{{ t.metodo_icone || '🪙' }}</span> {{ t.metodoPagamento }}</span>
+                </td>
+                <td class="text-end text-nowrap fs-5 fw-black text-danger pe-4">
+                  - {{ t.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                </td>
+              </tr>
+              <tr *ngIf="detailsModalTransactions.length === 0">
+                <td colspan="4" class="text-center text-muted py-5">
+                  <span class="fs-1 normal-emoji d-block opacity-50 mb-3">🍃</span>Nenhuma transação atrelada a este extrato.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer border-0 p-3 bg-surface">
+        <button type="button" class="btn btn-light rounded-pill border px-5 fw-bold" data-bs-dismiss="modal">Retornar</button>
+      </div>
+    </div>
+  </div>
+</div>

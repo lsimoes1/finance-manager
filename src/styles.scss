@@ -1,1 +1,248 @@
-/* You can add global styles to this file, and also import other style files */
+/* 🎨 Theme Variables */
+:root, [data-bs-theme="dark"] {
+  --primary-color: #818cf8; 
+  --primary-dark: #6366f1; 
+  --success-color: #10b981; 
+  --danger-color: #ef4444; 
+  --warning-color: #fbbf24;
+  --dark-color: #f8fafc; 
+  --text-muted: #94a3b8; 
+  --bg-color: #0f172a; 
+  --glass-bg: rgba(30, 41, 59, 0.7); 
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  --nav-bg: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+  --select-bg: rgba(30, 41, 59, 0.6);
+  --select-hover: rgba(30, 41, 59, 0.9);
+  --select-focus: rgba(30, 41, 59, 0.8);
+  --select-option-bg: #1e293b;
+  --select-text: #f8fafc;
+  --bg-light-override: rgba(255, 255, 255, 0.04);
+  --bg-dark-override: rgba(0, 0, 0, 0.3);
+  --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23818cf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  
+  --nav-text: rgba(255, 255, 255, 0.7);
+  --nav-text-hover: #ffffff;
+  --nav-hover-bg: rgba(255, 255, 255, 0.1);
+  --nav-active-bg: rgba(255, 255, 255, 0.15);
+}
+
+[data-bs-theme="light"] {
+  --primary-color: #6366f1; 
+  --primary-dark: #4f46e5; 
+  --success-color: #059669; 
+  --danger-color: #dc2626; 
+  --warning-color: #f59e0b;
+  --dark-color: #0f172a; 
+  --text-muted: #64748b; 
+  --bg-color: #f8fafc; 
+  --glass-bg: rgba(255, 255, 255, 0.8); 
+  --glass-border: rgba(0, 0, 0, 0.1);
+
+  --nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.95) 100%);
+  --select-bg: rgba(255, 255, 255, 0.6);
+  --select-hover: #ffffff;
+  --select-focus: rgba(255, 255, 255, 0.95);
+  --select-option-bg: #ffffff;
+  --select-text: #0f172a;
+  --bg-light-override: rgba(0, 0, 0, 0.04);
+  --bg-dark-override: rgba(255, 255, 255, 0.3);
+  --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  
+  --nav-text: rgba(15, 23, 42, 0.7);
+  --nav-text-hover: #0f172a;
+  --nav-hover-bg: rgba(0, 0, 0, 0.05);
+  --nav-active-bg: rgba(0, 0, 0, 0.08);
+}
+
+html, body { height: 100%; }
+body { 
+  margin: 0; 
+  font-family: 'Plus Jakarta Sans', Roboto, "Helvetica Neue", sans-serif; 
+  background-color: var(--bg-color) !important;
+  color: var(--dark-color) !important;
+}
+
+/* Custom Background Utility Classes */
+.bg-surface {
+  background-color: var(--glass-bg) !important;
+  backdrop-filter: blur(10px);
+}
+.text-foreground {
+  color: var(--dark-color) !important;
+}
+.border-surface {
+  border-color: var(--glass-border) !important;
+}
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Navbar adjustments for dark mode/light mode */
+.navbar-modern {
+  background: var(--nav-bg) !important;
+  border-bottom: 1px solid var(--glass-border);
+  transition: all 0.3s ease-in-out;
+}
+
+/* 🎨 Estilo Global Melhorado para Combo Boxes (Selects) */
+.form-select, select.modern-input, select.filter-select, select.minimal-select, select.elegant-input {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  
+  background-color: var(--select-bg) !important;
+  background-image: var(--select-icon) !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.85rem center !important;
+  background-size: 1.1em !important;
+  padding-right: 2.2rem !important;
+  
+  border: 2px solid var(--glass-border) !important;
+  border-radius: 12px !important;
+  color: var(--dark-color) !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important;
+  cursor: pointer !important;
+
+  &:hover {
+    border-color: rgba(129, 140, 248, 0.3) !important;
+    background-color: var(--select-hover) !important;
+  }
+
+  &:focus {
+    outline: none !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.15) !important;
+    background-color: var(--select-focus) !important;
+  }
+
+  option {
+    font-weight: 500 !important;
+    color: var(--select-text) !important;
+    padding: 10px !important;
+    background-color: var(--select-option-bg) !important;
+  }
+}
+
+/* Ajuste específico para selects que nasceram para ser invisíveis */
+select.minimal-select {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0.3rem 2rem 0.3rem 0.6rem !important;
+
+  &:hover {
+    border-color: rgba(129, 140, 248, 0.3) !important;
+    background-color: rgba(129, 140, 248, 0.1) !important;
+  }
+  
+  &:focus {
+    border-color: transparent !important;
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.15) !important;
+    background-color: rgba(129, 140, 248, 0.15) !important;
+  }
+}
+
+/* Base Bootstrap Utilities - Dark Mode Contrast Overrides */
+.bg-light {
+  background-color: var(--bg-light-override) !important;
+}
+.bg-dark {
+  background-color: var(--bg-dark-override) !important;
+}
+
+/* Modern Pill Button for Table Actions */
+.btn-edit-modern {
+  background-color: rgba(129, 140, 248, 0.15);
+  color: var(--primary-color) !important;
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  border-radius: 50rem;
+  font-weight: 700;
+  padding: 0.25rem 1rem;
+  font-size: 0.85rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: rgba(129, 140, 248, 0.25);
+    transform: scale(1.05);
+  }
+}
+
+/* 📊 Modern Table - Global Layout & Typography */
+.modern-table {
+  --bs-table-bg: transparent;
+  --bs-table-hover-bg: rgba(0,0,0,0.015);
+  
+  th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    font-weight: 700;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  td {
+    padding: 1rem 1.5rem;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(0,0,0,0.03);
+    color: var(--dark-color);
+  }
+
+  /* Column Specific Styles */
+  .date-cell {
+    span { font-size: 1.25rem; font-weight: 800; display: block; line-height: 1; }
+    small { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;}
+  }
+
+  .description-cell {
+    font-size: 0.95rem;
+  }
+
+  .val-cell { font-size: 1.05rem; }
+
+  /* 🏷️ Badges & Categorias (Aumentados conforme solicitado) */
+  .pill {
+    font-size: 0.8rem; /* Aumentado de 0.65rem */
+    font-weight: 700;
+    padding: 0.35rem 0.7rem;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    &-success { background: rgba(52, 211, 153, 0.15); color: #6ee7b7; border: 1px solid rgba(52, 211, 153, 0.2); }
+    &-danger { background: rgba(248, 113, 113, 0.15); color: #fca5a5; border: 1px solid rgba(248, 113, 113, 0.2); }
+    &-info { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.2); }
+    &-warning { background: rgba(251, 191, 36, 0.15); color: #fcd34d; border: 1px solid rgba(251, 191, 36, 0.2); }
+  }
+
+  .badge-soft {
+    font-size: 0.85rem; /* Aumentado de 0.7rem */
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--dark-color);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    margin-right: 0.4rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+
+    &-success { background: rgba(52, 211, 153, 0.15); color: #6ee7b7; border-color: rgba(52, 211, 153, 0.2); }
+  }
+
+  .btn-icon {
+    background: none; border: none; font-size: 1rem; opacity: 0.6;
+    transition: all 0.2s; padding: 0.2rem;
+    &:hover { opacity: 1; transform: scale(1.2); }
+  }
+}
+
+/* Modal Detalhes Card Specific Overrides */
+.hover-row:hover {
+  background-color: var(--bs-table-hover-bg) !important;
+}

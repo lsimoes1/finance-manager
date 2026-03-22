@@ -1,0 +1,24 @@
+
+
+services:
+  backend:
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    container_name: finance-manager-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./back-end/data:/app/data
+    restart: always
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: finance-manager-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always

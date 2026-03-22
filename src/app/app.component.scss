@@ -1,0 +1,48 @@
+.navbar-modern {
+  height: 70px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  position: sticky; top: 0; z-index: 1000;
+
+  .brand-icon {
+    font-size: 1.5rem;
+  }
+  .tracking-wide { letter-spacing: 0.05em; }
+
+  .nav-links {
+    height: 100%;
+    align-items: center;
+
+    .nav-link {
+      color: var(--nav-text);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+      position: relative;
+
+      &:hover {
+        color: var(--nav-text-hover);
+        background: var(--nav-hover-bg);
+      }
+
+      &.active {
+        color: var(--nav-text-hover);
+        background: var(--nav-active-bg);
+        
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -4px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 50%;
+          height: 3px;
+          background: #10b981;
+          border-radius: 3px;
+        }
+      }
+    }
+  }
+}

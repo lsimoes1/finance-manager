@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.angular/
+.git/
+.editorconfig
+.gitignore
+README.md
+back-end/
+docker-compose.yml
