@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -101,6 +101,22 @@ export class ConfiguracoesComponent implements OnInit {
   // Variáveis do Modal de Exclusão
   itemToDelete: any = null;
   deleteType: 'categoria' | 'metodo' | null = null;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    // Se clicar fora de qualquer popup ou botão de toggle, fecha tudo
+    // Nota: O stopPropagation nos botões e popups no HTML cuidará do resto
+    if (!(event.target as HTMLElement).closest('.emoji-picker-container')) {
+      this.closeAllPopups();
+    }
+  }
+
+  private closeAllPopups() {
+    this.showEmojiPickerCat = false;
+    this.showEmojiPickerEditCat = false;
+    this.showEmojiPickerMet = false;
+    this.showEmojiPickerEditMet = false;
+  }
 
   ngOnInit(): void {
     this.loadData();

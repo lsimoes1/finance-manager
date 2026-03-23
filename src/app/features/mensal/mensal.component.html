@@ -2,7 +2,7 @@
 <div class="bg-shape-1"></div>
 <div class="bg-shape-2"></div>
 
-<div class="container-fluid main-content px-4 py-4 mb-5">
+<div class="container-fluid main-content px-4 py-4 mb-5 pb-5" style="padding-bottom: 120px !important;">
   <div *ngIf="errorMsg" class="alert custom-error-alert" [@fadeSlide]>
     <strong>⚠️ Ocorreu um problema:</strong> {{ errorMsg }}
     <button type="button" class="btn-close" (click)="errorMsg = null"></button>
@@ -10,7 +10,7 @@
 
   <!-- ===================== CONTROLE DE PERÍODO (Reestilizado) ===================== -->
   <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 mt-2 gap-3 position-relative"
-    style="z-index: 1050;" [@fadeSlide]>
+    style="z-index: 10;" [@fadeSlide]>
     <div>
       <h4 class="fw-bold tracking-wide m-0 text-foreground">Controle Mensal</h4>
       <p class="text-muted m-0 small">Visão geral das suas finanças</p>
@@ -586,14 +586,31 @@
               <label class="modern-label date-label">Saída *</label>
             </div>
           </div>
-          <div class="modern-input-group mb-4 bg-light rounded pt-2 pb-2 px-3 border border-surface">
-            <label class="form-label text-primary fw-bold mb-1 small">Modalidade da despesa</label>
-            <select class="form-select border-0 bg-transparent fw-bolder text-foreground p-0 shadow-none lh-lg"
-              id="gasTipo" [(ngModel)]="gastoTipo" (change)="onGastoTipoChange()" name="gasTipo">
-              <option value="avulsa">Compra Única (Avulso)</option>
-              <option value="fixa">Conta Fixa mensal</option>
-              <option value="parcelada">Compra Parcelada</option>
-            </select>
+          <div class="modern-input-group mb-4">
+            <div ngbDropdown class="custom-dropdown-select">
+              <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownGasTipo">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="normal-emoji">{{ getGastoTipoIcon(gastoTipo) }}</span>
+                  <span class="text-truncate">{{ getGastoTipoLabel(gastoTipo) }}</span>
+                </div>
+                <span class="normal-emoji caret-icon">▼</span>
+              </button>
+              <div ngbDropdownMenu aria-labelledby="dropdownGasTipo">
+                <button type="button" ngbDropdownItem (click)="gastoTipo = 'avulsa'; onGastoTipoChange()">
+                  <span class="normal-emoji">📌</span>
+                  <span>Compra Única (Avulso)</span>
+                </button>
+                <button type="button" ngbDropdownItem (click)="gastoTipo = 'fixa'; onGastoTipoChange()">
+                  <span class="normal-emoji">🔁</span>
+                  <span>Conta Fixa mensal</span>
+                </button>
+                <button type="button" ngbDropdownItem (click)="gastoTipo = 'parcelada'; onGastoTipoChange()">
+                  <span class="normal-emoji">📅</span>
+                  <span>Compra Parcelada</span>
+                </button>
+              </div>
+            </div>
+            <label class="modern-label date-label">Modalidade da despesa *</label>
           </div>
 
           <div class="row g-3 mb-4 conditional-area" *ngIf="gastoTipo === 'fixa' || gastoTipo === 'parcelada'">
@@ -701,16 +718,29 @@
           </div>
 
           <!-- MUDANÇA DE TIPO (Apenas para recorrentes) -->
-          <div class="recorrencia-edit-box mb-4 bg-light rounded p-3 border border-info-subtle"
-            *ngIf="selectedTransaction.recorrencia_id">
-            <label class="form-label text-primary fw-bold mb-1 small">Modalidade da despesa</label>
-            <select class="form-select border-0 bg-transparent fw-bolder text-foreground p-0 shadow-none lh-lg mb-2"
-              [(ngModel)]="editPayload.tipo" name="editTipo">
-              <option value="fixa">Conta Fixa mensal</option>
-              <option value="parcelada">Compra Parcelada</option>
-            </select>
+          <div class="modern-input-group mb-4" *ngIf="selectedTransaction.recorrencia_id">
+            <div ngbDropdown class="custom-dropdown-select">
+              <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownEditTipo">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="normal-emoji">{{ getGastoTipoIcon(editPayload.tipo || '') }}</span>
+                  <span class="text-truncate">{{ getGastoTipoLabel(editPayload.tipo || '') }}</span>
+                </div>
+                <span class="normal-emoji caret-icon">▼</span>
+              </button>
+              <div ngbDropdownMenu aria-labelledby="dropdownEditTipo">
+                <button type="button" ngbDropdownItem (click)="editPayload.tipo = 'fixa'">
+                  <span class="normal-emoji">🔁</span>
+                  <span>Conta Fixa mensal</span>
+                </button>
+                <button type="button" ngbDropdownItem (click)="editPayload.tipo = 'parcelada'">
+                  <span class="normal-emoji">📅</span>
+                  <span>Compra Parcelada</span>
+                </button>
+              </div>
+            </div>
+            <label class="modern-label date-label">Modalidade da despesa *</label>
 
-            <div class="modern-input-group animate-pop mt-2" *ngIf="editPayload.tipo === 'parcelada'">
+            <div class="modern-input-group animate-pop mt-4" *ngIf="editPayload.tipo === 'parcelada'">
               <input type="number" class="modern-input" id="editTotalParcelas" required min="1" max="120"
                 [(ngModel)]="editPayload.total_parcelas" name="editTotalParcelas" placeholder=" ">
               <label for="editTotalParcelas" class="modern-label">Total de Parcelas *</label>
@@ -912,26 +942,26 @@
 
 <!-- Modal Detalhes Card -->
 <div class="modal fade" id="cardDetailsModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content modern-modal border-0 shadow-lg" style="min-height: 60vh;">
-      <div class="modal-header border-bottom mx-4 px-0 pb-3 mt-3 bg-surface">
-        <h4 class="modal-title fw-bolder text-foreground d-flex align-items-center gap-2">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-dynamic-width">
+    <div class="modal-content modern-modal border-0 shadow-lg">
+      <div class="modal-header border-bottom px-4 pb-3 bg-surface">
+        <h5 class="modal-title fw-bolder text-foreground d-flex align-items-center gap-2">
           {{ detailsModalTitle }}
-        </h4>
+        </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-0 bg-light">
 
         <div
-          class="p-4 mx-4 my-3 bg-surface rounded-4 shadow-sm border d-flex justify-content-between align-items-center">
-          <span class="text-muted fw-bold d-flex align-items-center gap-2">
-            <span class="normal-emoji fs-4">🧮</span>
+          class="p-3 mx-4 my-3 bg-surface rounded-4 shadow-sm border d-flex justify-content-between align-items-center">
+          <span class="text-muted fw-bold d-flex align-items-center gap-2 small">
+            <span class="normal-emoji fs-5">🧮</span>
             <span>Impacto Líquido neste grupo:</span>
           </span>
-          <h2 class="m-0 fw-black"
+          <h4 class="m-0 fw-black"
             [ngClass]="detailsModalValue > 0 ? 'text-success' : (detailsModalValue < 0 ? 'text-danger' : 'text-foreground')">
             {{ detailsModalValue > 0 ? '+' : '' }}{{ detailsModalValue | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-          </h2>
+          </h4>
         </div>
 
         <div class="table-responsive px-4 pb-4">
@@ -994,9 +1024,7 @@
         </div>
 
       </div>
-      <div class="modal-footer border-0 p-3 bg-surface">
-        <button type="button" class="btn btn-light rounded-pill border px-5 fw-bold"
-          data-bs-dismiss="modal">Retornar</button>
+      <div class="modal-footer border-top-0 pt-0 pb-4 px-4 bg-light d-flex justify-content-end">
       </div>
     </div>
   </div>

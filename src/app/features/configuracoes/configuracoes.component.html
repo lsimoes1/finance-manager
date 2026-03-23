@@ -34,10 +34,10 @@
           </div>
 
           <!-- Add Nova Categoria -->
-          <div class="bg-light p-3 rounded-4 mb-4 border shadow-sm flex-shrink-0 position-relative">
+          <div class="bg-light p-3 rounded-4 mb-4 border shadow-sm flex-shrink-0 position-relative emoji-picker-container">
             <label class="form-label text-primary fw-bold small text-uppercase mb-2">Adicionar Nova Categoria</label>
             <div class="d-flex gap-2">
-              <button class="btn btn-light border bg-surface rounded shadow-sm text-center px-2 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 50px;" (click)="toggleEmojiPicker('new')" title="Escolher Ícone">
+              <button class="btn btn-light border bg-surface rounded shadow-sm text-center px-2 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 50px;" (click)="toggleEmojiPicker('new'); $event.stopPropagation()" title="Escolher Ícone">
                 <app-icon-display [icon]="novaCategoriaIcone" size="1.25rem"></app-icon-display>
               </button>
               <input type="text" class="form-control form-control-sm elegant-input h-100 flex-grow-1" placeholder="Ex: Mercado" [(ngModel)]="novaCategoriaNome" (keyup.enter)="adicionarCategoria()">
@@ -45,7 +45,9 @@
                  <option [ngValue]="2">Despesa ➖</option>
                  <option [ngValue]="1">Receita ➕</option>
               </select>
-              <button class="btn btn-primary rounded-circle shadow-sm flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px" (click)="adicionarCategoria()">➕</button>
+              <button class="btn btn-primary rounded-pill shadow-sm flex-shrink-0 d-flex align-items-center justify-content-center gap-2 px-3" (click)="adicionarCategoria()">
+                <span class="normal-emoji">💾</span> Salvar
+              </button>
             </div>
             
             <!-- Popup de Emoji OVERLAY NOVO -->
@@ -65,12 +67,14 @@
               <li *ngFor="let c of categorias" class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-surface">
                 <!-- Modo Visualização -->
                 <div *ngIf="!editCategoria || editCategoria.id !== c.id" class="d-flex align-items-center gap-3">
-                  <div class="icon-circle shadow-sm d-flex align-items-center justify-content-center" [ngClass]="c.tipo_categoria === 1 ? 'bg-success text-white' : 'bg-primary text-white'">
-                    <app-icon-display [icon]="c.icone" size="1.25rem"></app-icon-display>
+                  <div class="d-flex align-items-center justify-content-center" style="width: 32px;">
+                    <app-icon-display [icon]="c.icone" size="1.5rem"></app-icon-display>
                   </div>
                   <div>
                     <strong class="text-foreground d-block">{{ c.nome }}</strong>
-                    <small class="text-muted">{{ c.tipo_categoria === 1 ? 'Receita' : 'Despesa' }}</small>
+                    <span class="badget-type" [ngClass]="c.tipo_categoria === 1 ? 'type-success' : 'type-danger'">
+                      {{ c.tipo_categoria === 1 ? 'Receita' : 'Despesa' }}
+                    </span>
                   </div>
                 </div>
                 <div *ngIf="!editCategoria || editCategoria.id !== c.id" class="d-flex gap-2">
@@ -79,9 +83,9 @@
                 </div>
 
                 <!-- Modo Edição -->
-                <div *ngIf="editCategoria && editCategoria.id === c.id" class="w-100 bg-surface p-3 rounded-4 shadow-sm border border-primary position-relative">
+                <div *ngIf="editCategoria && editCategoria.id === c.id" class="w-100 bg-surface p-3 rounded-4 shadow-sm border border-primary position-relative emoji-picker-container">
                   <div class="d-flex gap-2 mb-2">
-                    <button class="btn btn-light border bg-surface shadow-sm text-center px-1 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 45px;" (click)="toggleEmojiPicker('edit')">
+                    <button class="btn btn-light border bg-surface shadow-sm text-center px-1 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 45px;" (click)="toggleEmojiPicker('edit'); $event.stopPropagation()">
                       <app-icon-display [icon]="editCategoria.icone" size="1.1rem"></app-icon-display>
                     </button>
                     <input type="text" class="form-control form-control-sm flex-grow-1" [(ngModel)]="editCategoria.nome">
@@ -120,14 +124,16 @@
           </div>
 
           <!-- Add Novo Método -->
-          <div class="bg-light p-3 rounded-4 mb-4 border shadow-sm flex-shrink-0 position-relative">
+          <div class="bg-light p-3 rounded-4 mb-4 border shadow-sm flex-shrink-0 position-relative emoji-picker-container">
             <label class="form-label text-foreground fw-bold small text-uppercase mb-2">Adicionar Forma de Pgto</label>
             <div class="d-flex gap-2 mb-2">
-              <button class="btn btn-light border bg-surface rounded shadow-sm text-center px-2 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 50px;" (click)="toggleEmojiPickerMet('new')" title="Escolher Ícone">
+              <button class="btn btn-light border bg-surface rounded shadow-sm text-center px-2 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 50px;" (click)="toggleEmojiPickerMet('new'); $event.stopPropagation()" title="Escolher Ícone">
                 <app-icon-display [icon]="novoMetodoIcone" size="1.25rem"></app-icon-display>
               </button>
               <input type="text" class="form-control form-control-sm elegant-input h-100 flex-grow-1" placeholder="Ex: Cartão de Crédito" [(ngModel)]="novoMetodoNome" (keyup.enter)="adicionarMetodo()">
-              <button class="btn btn-dark rounded-circle shadow-sm flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px" (click)="adicionarMetodo()">➕</button>
+              <button class="btn btn-dark rounded-pill shadow-sm flex-shrink-0 d-flex align-items-center justify-content-center gap-2 px-3" (click)="adicionarMetodo()">
+                <span class="normal-emoji">💾</span> Salvar
+              </button>
             </div>
             <select class="form-select form-select-sm elegant-input" [(ngModel)]="novoMetodoTipo">
               <option value="padrao">🏦 Padrão (Débito / Pix / Dinheiro)</option>
@@ -151,10 +157,15 @@
               <li *ngFor="let m of metodos" class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-surface">
                 <!-- Modo Visualização -->
                  <div *ngIf="!editMetodo || editMetodo.id !== m.id" class="d-flex align-items-center gap-3">
-                  <div class="icon-circle shadow-sm bg-dark text-white d-flex align-items-center justify-content-center">
-                     <app-icon-display [icon]="m.icone" size="1.1rem" defaultIcon="🪙"></app-icon-display>
+                  <div class="d-flex align-items-center justify-content-center" style="width: 24px;">
+                     <app-icon-display [icon]="m.icone" size="1.3rem" defaultIcon="🪙"></app-icon-display>
                   </div>
-                  <strong class="text-foreground">{{ m.nome }}</strong>
+                  <div>
+                    <strong class="text-foreground d-block">{{ m.nome }}</strong>
+                    <small class="text-muted d-block" style="font-size: 0.75rem; margin-top: -2px;">
+                      {{ m.tipo === 'credito' ? '💳 Cartão de Crédito' : m.tipo === 'investimento' ? '💹 Conta de Investimento' : '🏦 Padrão (Débito / Pix / Dinheiro)' }}
+                    </small>
+                  </div>
                 </div>
                 <div *ngIf="!editMetodo || editMetodo.id !== m.id" class="d-flex gap-2">
                   <button class="btn-icon text-muted hover-primary p-1" (click)="iniciarEdicaoMetodo(m)">✏️</button>
@@ -162,9 +173,9 @@
                 </div>
 
                 <!-- Modo Edição -->
-                 <div *ngIf="editMetodo && editMetodo.id === m.id" class="w-100 bg-surface p-3 rounded-4 shadow-sm border border-dark position-relative">
+                 <div *ngIf="editMetodo && editMetodo.id === m.id" class="w-100 bg-surface p-3 rounded-4 shadow-sm border border-dark position-relative emoji-picker-container">
                   <div class="d-flex gap-2 mb-2">
-                    <button class="btn btn-light border bg-surface shadow-sm text-center px-1 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 45px;" (click)="toggleEmojiPickerMet('edit')">
+                    <button class="btn btn-light border bg-surface shadow-sm text-center px-1 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 45px;" (click)="toggleEmojiPickerMet('edit'); $event.stopPropagation()">
                       <app-icon-display [icon]="editMetodo.icone" size="1.1rem" defaultIcon="🪙"></app-icon-display>
                     </button>
                     <input type="text" class="form-control form-control-sm flex-grow-1" [(ngModel)]="editMetodo.nome">
