@@ -59,6 +59,20 @@ export class FinanceService {
     return this.http.put(`${this.baseUrl}/configuracoes/periodo`, { dia_inicio });
   }
 
+  getCustomIcons(): Observable<{ nome: string; path: string; filename: string }[]> {
+    return this.http.get<{ nome: string; path: string; filename: string }[]>(`${this.baseUrl}/configuracoes/icones`);
+  }
+
+  uploadIcon(file: File): Observable<{ ok: boolean, icon: { nome: string, path: string } }> {
+    const formData = new FormData();
+    formData.append('icon', file);
+    return this.http.post<{ ok: boolean, icon: { nome: string, path: string } }>(`${this.baseUrl}/configuracoes/icones/upload`, formData);
+  }
+
+  deleteCustomIcon(filename: string): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/configuracoes/icones/${filename}`);
+  }
+
   getTransacoes(dateFrom?: string, dateTo?: string): Observable<Transacao[]> {
     const params = (dateFrom && dateTo) ? `?dateFrom=${dateFrom}&dateTo=${dateTo}` : '';
     return this.http.get<Transacao[]>(`${this.baseUrl}/transacoes${params}`);

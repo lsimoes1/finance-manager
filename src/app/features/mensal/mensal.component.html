@@ -9,34 +9,45 @@
   </div>
 
   <!-- ===================== CONTROLE DE PERÍODO (Reestilizado) ===================== -->
-  <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 mt-2 gap-3 position-relative" style="z-index: 1050;" [@fadeSlide]>
+  <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 mt-2 gap-3 position-relative"
+    style="z-index: 1050;" [@fadeSlide]>
     <div>
       <h4 class="fw-bold tracking-wide m-0 text-foreground">Controle Mensal</h4>
       <p class="text-muted m-0 small">Visão geral das suas finanças</p>
     </div>
-    
+
     <div class="d-flex flex-column align-items-end gap-1">
       <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-sm btn-light border rounded-pill px-3 shadow-sm fw-bold text-secondary hover-primary transition-all" (click)="setPeriodToToday()">Hoje</button>
+        <button
+          class="btn btn-sm btn-light border rounded-pill px-3 shadow-sm fw-bold text-secondary hover-primary transition-all"
+          (click)="setPeriodToToday()">Hoje</button>
         <div class="modern-period-selector d-flex align-items-center p-1 rounded-pill shadow-sm bg-surface border">
           <div class="d-flex align-items-center ms-3 text-muted normal-emoji me-2">📅</div>
           <div ngbDropdown class="d-inline-block">
-            <button type="button" class="btn btn-link text-decoration-none fw-bold text-primary p-1 border-0 minimal-select" id="dropdownMonth" ngbDropdownToggle>
+            <button type="button"
+              class="btn btn-link text-decoration-none fw-bold text-primary p-1 border-0 minimal-select"
+              id="dropdownMonth" ngbDropdownToggle>
               {{ getSelectedMonthLabel() }}
             </button>
-            <div ngbDropdownMenu aria-labelledby="dropdownMonth" class="shadow-sm border border-light-subtle rounded-4 py-2 mt-1">
-              <button type="button" ngbDropdownItem *ngFor="let m of months" (click)="selectedMonth = m.value; onPeriodChange()" [class.active]="selectedMonth === m.value">
+            <div ngbDropdownMenu aria-labelledby="dropdownMonth"
+              class="shadow-sm border border-light-subtle rounded-4 py-2 mt-1">
+              <button type="button" ngbDropdownItem *ngFor="let m of months"
+                (click)="selectedMonth = m.value; onPeriodChange()" [class.active]="selectedMonth === m.value">
                 {{ m.label }}
               </button>
             </div>
           </div>
           <div class="divider mx-2"></div>
           <div ngbDropdown class="d-inline-block">
-            <button type="button" class="btn btn-link text-decoration-none fw-bold text-foreground p-1 border-0 minimal-select me-2" id="dropdownYear" ngbDropdownToggle>
+            <button type="button"
+              class="btn btn-link text-decoration-none fw-bold text-foreground p-1 border-0 minimal-select me-2"
+              id="dropdownYear" ngbDropdownToggle>
               {{ selectedYear }}
             </button>
-            <div ngbDropdownMenu aria-labelledby="dropdownYear" class="shadow-sm border border-light-subtle rounded-4 py-2 mt-1">
-              <button type="button" ngbDropdownItem *ngFor="let y of availableYears" (click)="selectedYear = y; onPeriodChange()" [class.active]="selectedYear === y">
+            <div ngbDropdownMenu aria-labelledby="dropdownYear"
+              class="shadow-sm border border-light-subtle rounded-4 py-2 mt-1">
+              <button type="button" ngbDropdownItem *ngFor="let y of availableYears"
+                (click)="selectedYear = y; onPeriodChange()" [class.active]="selectedYear === y">
                 {{ y }}
               </button>
             </div>
@@ -51,45 +62,55 @@
 
   <!-- ===================== CARDS REDESENHADOS (Coloridos e Estruturados) ===================== -->
   <div class="summary-grid mb-5" [@cardStagger]>
-    
+
     <div class="row g-3 mb-3">
       <!-- Card Saldo Atual Realizado -->
       <div class="col-md-6">
-        <div class="summary-card colored-card bg-gradient-primary text-white shadow-lg" style="cursor: pointer;" (click)="openCardDetails('saldo')">
+        <div class="summary-card colored-card bg-gradient-primary text-white shadow-lg" style="cursor: pointer;"
+          (click)="openCardDetails('saldo')">
           <div class="d-flex justify-content-between align-items-center mb-1">
             <span class="card-title text-white fw-medium opacity-75">Saldo Atual (Total dos dois)</span>
             <div class="card-icon-container bg-surface bg-opacity-25 text-white">
               <span class="icon normal-emoji">💸</span>
             </div>
           </div>
-          <h2 class="card-value fw-bolder m-0 mb-2" [ngClass]="saldoAtual >= 0 ? 'text-balance-positive' : 'text-balance-negative'">
+          <h2 class="card-value fw-bolder m-0 mb-2"
+            [ngClass]="saldoAtual >= 0 ? 'text-balance-positive' : 'text-balance-negative'">
             {{ saldoAtual | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
           </h2>
-          
+
           <div class="d-flex gap-2 mt-2 pt-2 border-top border-light border-opacity-25 w-100">
-             <div class="bg-white bg-opacity-10 rounded px-2 py-1 flex-fill">
-                <small class="d-block text-white fw-semibold text-uppercase tracking-wider" style="font-size: 0.65rem; letter-spacing: 0.05em;">C. Corrente</small>
-                <span class="fw-bold" style="font-size: 0.95rem;" [ngClass]="saldoContaCorrente >= 0 ? 'text-balance-positive' : 'text-balance-negative'">{{ saldoContaCorrente | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
-             </div>
-             <div class="bg-white bg-opacity-10 rounded px-2 py-1 flex-fill">
-                <small class="d-block text-white fw-semibold text-uppercase tracking-wider" style="font-size: 0.65rem; letter-spacing: 0.05em;">Carteira</small>
-                <span class="fw-bold" style="font-size: 0.95rem;" [ngClass]="saldoCarteira >= 0 ? 'text-balance-positive' : 'text-balance-negative'">{{ saldoCarteira | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
-             </div>
+            <div class="bg-white bg-opacity-10 rounded px-2 py-1 flex-fill">
+              <small class="d-block text-white fw-semibold text-uppercase tracking-wider"
+                style="font-size: 0.65rem; letter-spacing: 0.05em;">C. Corrente</small>
+              <span class="fw-bold" style="font-size: 0.95rem;"
+                [ngClass]="saldoContaCorrente >= 0 ? 'text-balance-positive' : 'text-balance-negative'">{{
+                saldoContaCorrente | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+            </div>
+            <div class="bg-white bg-opacity-10 rounded px-2 py-1 flex-fill">
+              <small class="d-block text-white fw-semibold text-uppercase tracking-wider"
+                style="font-size: 0.65rem; letter-spacing: 0.05em;">Carteira</small>
+              <span class="fw-bold" style="font-size: 0.95rem;"
+                [ngClass]="saldoCarteira >= 0 ? 'text-balance-positive' : 'text-balance-negative'">{{ saldoCarteira |
+                currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+            </div>
           </div>
-          
+
         </div>
       </div>
 
       <!-- Card Projeção -->
       <div class="col-md-6">
-        <div class="summary-card colored-card bg-gradient-dark text-white shadow-lg" style="cursor: pointer;" (click)="openCardDetails('projecao')">
+        <div class="summary-card colored-card bg-gradient-dark text-white shadow-lg" style="cursor: pointer;"
+          (click)="openCardDetails('projecao')">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="card-title text-white-50">Projeção Fim do Mês</span>
             <div class="card-icon-container bg-surface bg-opacity-25 text-white">
               <span class="icon normal-emoji">🔮</span>
             </div>
           </div>
-          <h2 class="card-value fw-bolder m-0" [ngClass]="projecaoSaldo >= 0 ? 'text-success-light' : 'text-danger-light'">
+          <h2 class="card-value fw-bolder m-0"
+            [ngClass]="projecaoSaldo >= 0 ? 'text-success-light' : 'text-danger-light'">
             {{ projecaoSaldo | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
           </h2>
           <small class="text-white-50 mt-1 d-block" style="font-size: 0.75rem;" *ngIf="saldoAnterior !== 0">
@@ -102,7 +123,8 @@
     <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
       <!-- Card Receitas -->
       <div class="col">
-        <div class="summary-card glass-card border-top-success" style="cursor: pointer;" (click)="openCardDetails('receitas')">
+        <div class="summary-card glass-card border-top-success" style="cursor: pointer;"
+          (click)="openCardDetails('receitas')">
           <div class="card-info">
             <div class="d-flex align-items-center gap-2 mb-1">
               <span class="normal-emoji text-success">📈</span>
@@ -117,7 +139,8 @@
 
       <!-- Card Gastos Avulsos -->
       <div class="col">
-        <div class="summary-card glass-card border-top-danger" style="cursor: pointer;" (click)="openCardDetails('avulsas')">
+        <div class="summary-card glass-card border-top-danger" style="cursor: pointer;"
+          (click)="openCardDetails('avulsas')">
           <div class="card-info">
             <div class="d-flex align-items-center gap-2 mb-1">
               <span class="normal-emoji text-danger">📉</span>
@@ -132,7 +155,8 @@
 
       <!-- Card Gastos Fixos -->
       <div class="col">
-        <div class="summary-card glass-card border-top-warning" style="cursor: pointer;" (click)="openCardDetails('fixos')">
+        <div class="summary-card glass-card border-top-warning" style="cursor: pointer;"
+          (click)="openCardDetails('fixos')">
           <div class="card-info">
             <div class="d-flex align-items-center gap-2 mb-1">
               <span class="normal-emoji text-warning">🔁</span>
@@ -147,7 +171,8 @@
 
       <!-- Card Cartão de Crédito -->
       <div class="col">
-        <div class="summary-card glass-card border-top-credit" style="cursor: pointer;" (click)="openCardDetails('credito')">
+        <div class="summary-card glass-card border-top-credit" style="cursor: pointer;"
+          (click)="openCardDetails('credito')">
           <div class="card-info">
             <div class="d-flex align-items-center gap-2 mb-1">
               <span class="normal-emoji" style="color: #8b5cf6;">💳</span>
@@ -162,7 +187,8 @@
 
       <!-- Card Investimentos -->
       <div class="col">
-        <div class="summary-card glass-card border-top-invest" style="cursor: pointer;" (click)="openCardDetails('investimentos')">
+        <div class="summary-card glass-card border-top-invest" style="cursor: pointer;"
+          (click)="openCardDetails('investimentos')">
           <div class="card-info">
             <div class="d-flex align-items-center gap-2 mb-1">
               <span class="normal-emoji" style="color: #0ea5e9;">💹</span>
@@ -171,7 +197,8 @@
             <h4 class="card-value fw-bold m-0" style="color: #0284c7;">
               {{ totalInvestimentos | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
             </h4>
-            <small class="text-muted" style="font-size: 0.72rem;" *ngIf="totalInvestimentos > 0">aportes no período</small>
+            <small class="text-muted" style="font-size: 0.72rem;" *ngIf="totalInvestimentos > 0">aportes no
+              período</small>
           </div>
         </div>
       </div>
@@ -182,7 +209,7 @@
   <!-- ===================== AÇÕES RÁPIDAS ===================== -->
   <div class="d-flex flex-wrap gap-3 mb-4 section-header align-items-center" [@fadeSlide]>
     <h4 class="fw-bold me-auto m-0 section-main-title">Extrato Mensal</h4>
-    
+
     <!-- Botão de Importar -->
     <input type="file" id="importFile" accept=".txt" class="d-none" (change)="onFileSelected($event)">
     <button class="btn btn-dark rounded-pill fw-medium shadow-sm transition-all" (click)="triggerFileInput()">
@@ -203,21 +230,29 @@
       <h6 class="mb-0 fw-bold text-primary-dark d-flex align-items-center gap-2">
         <span class="normal-emoji">🔁</span> Gastos Fixos e Parcelados
       </h6>
-      <span class="badge bg-primary text-white rounded-pill px-3">{{ recorrentesFiltrados.length }} de {{ recorrentes.length }}</span>
+      <span class="badge bg-primary text-white rounded-pill px-3">{{ recorrentesFiltrados.length }} de {{
+        recorrentes.length }}</span>
       <div class="ms-auto d-flex align-items-center gap-2">
         <div class="filter-select-wrapper" ngbDropdown>
-          <button type="button" class="btn btn-sm btn-light border rounded px-3 py-1 shadow-sm d-flex align-items-center gap-2" id="filterFixos" ngbDropdownToggle>
-             <span class="normal-emoji">🏷️</span>
-             <span class="fw-medium text-truncate" style="max-width: 150px;">{{ filterCategoriaFixos || 'Todas as categorias' }}</span>
+          <button type="button"
+            class="btn btn-sm btn-light border rounded px-3 py-1 shadow-sm d-flex align-items-center gap-2"
+            id="filterFixos" ngbDropdownToggle>
+            <span class="normal-emoji">🏷️</span>
+            <span class="fw-medium text-truncate" style="max-width: 150px;">{{ filterCategoriaFixos || 'Todas as
+              categorias' }}</span>
           </button>
-          <div ngbDropdownMenu aria-labelledby="filterFixos" class="shadow-sm border border-light-subtle rounded-4 py-2 mt-1">
-            <button type="button" ngbDropdownItem (click)="filterCategoriaFixos = ''" [class.active]="!filterCategoriaFixos">Todas as categorias</button>
-            <button type="button" ngbDropdownItem *ngFor="let cat of categoriasUnicasFixos" (click)="filterCategoriaFixos = cat.nome" [class.active]="filterCategoriaFixos === cat.nome">
+          <div ngbDropdownMenu aria-labelledby="filterFixos"
+            class="shadow-sm border border-light-subtle rounded-4 py-2 mt-1">
+            <button type="button" ngbDropdownItem (click)="filterCategoriaFixos = ''"
+              [class.active]="!filterCategoriaFixos">Todas as categorias</button>
+            <button type="button" ngbDropdownItem *ngFor="let cat of categoriasUnicasFixos"
+              (click)="filterCategoriaFixos = cat.nome" [class.active]="filterCategoriaFixos === cat.nome">
               <span class="normal-emoji me-2">{{ cat.icone }}</span> {{ cat.nome }}
             </button>
           </div>
         </div>
-        <button *ngIf="filterCategoriaFixos" class="btn-clear-filter" (click)="filterCategoriaFixos = ''" title="Limpar filtro">×</button>
+        <button *ngIf="filterCategoriaFixos" class="btn-clear-filter" (click)="filterCategoriaFixos = ''"
+          title="Limpar filtro">×</button>
       </div>
     </div>
     <div class="table-container glass-card mb-5 border-info-subtle shadow-sm overflow-hidden" [@fadeSlide]>
@@ -241,20 +276,23 @@
                 <small class="d-block">{{ t.data | date:'MM/yyyy' }}</small>
               </td>
               <td class="text-center">
-                <span class="pill" [class.pill-info]="t.tipo_name === 'fixa'" [class.pill-warning]="t.tipo_name === 'parcelada'">
+                <span class="pill" [class.pill-info]="t.tipo_name === 'fixa'"
+                  [class.pill-warning]="t.tipo_name === 'parcelada'">
                   {{ t.tipo_name }}
                 </span>
               </td>
               <td class="description-cell fw-semibold text-foreground">
                 {{ t.descricao }}
                 <div class="meta-cell mt-1">
-                  <span class="badge-soft"><span class="normal-emoji me-1">{{ t.categoria_icone || '🏷️' }}</span> {{ t.categoria }}</span>
-                  <span class="badge-soft"><span class="normal-emoji me-1">{{ t.metodo_icone || '🪙' }}</span> {{ t.metodoPagamento }}</span>
+                  <span class="badge-soft"><app-icon-display [icon]="t.categoria_icone" size="1.2rem"
+                      customClass="me-1"></app-icon-display> {{ t.categoria }}</span>
+                  <span class="badge-soft"><app-icon-display [icon]="t.metodo_icone" size="1.2rem" customClass="me-1"
+                      defaultIcon="🪙"></app-icon-display> {{ t.metodoPagamento }}</span>
                 </div>
               </td>
               <td class="text-center fw-medium text-secondary">
                 <span *ngIf="t.recorrencia_total_parcelas">
-                 {{ t.parcela_atual }}<small class="text-muted">/{{ t.recorrencia_total_parcelas }}</small>
+                  {{ t.parcela_atual }}<small class="text-muted">/{{ t.recorrencia_total_parcelas }}</small>
                 </span>
                 <span *ngIf="!t.recorrencia_total_parcelas" class="text-muted">—</span>
               </td>
@@ -274,7 +312,8 @@
             <tr *ngIf="recorrentesFiltrados.length === 0">
               <td colspan="7" class="text-center text-muted empty-state py-5">
                 <div class="empty-icon normal-emoji">🏖️</div>
-                <p class="mb-0 mt-2">{{ filterCategoriaFixos ? 'Nenhum item na categoria "' + filterCategoriaFixos + '".' : 'Nenhum gasto fixo ou parcelado para o período atual.' }}</p>
+                <p class="mb-0 mt-2">{{ filterCategoriaFixos ? 'Nenhum item na categoria "' + filterCategoriaFixos +
+                  '".' : 'Nenhum gasto fixo ou parcelado para o período atual.' }}</p>
               </td>
             </tr>
           </tbody>
@@ -290,42 +329,54 @@
       </h6>
       <div class="ms-auto d-flex align-items-center gap-2">
         <div class="filter-select-wrapper" ngbDropdown>
-          <button type="button" class="btn btn-sm btn-light border rounded px-3 py-1 shadow-sm d-flex align-items-center gap-2" id="filterGerais" ngbDropdownToggle>
-             <span class="normal-emoji">🏷️</span>
-             <span class="fw-medium text-truncate" style="max-width: 150px;">{{ filterCategoriaGerais || 'Todas as categorias' }}</span>
+          <button type="button"
+            class="btn btn-sm btn-light border rounded px-3 py-1 shadow-sm d-flex align-items-center gap-2"
+            id="filterGerais" ngbDropdownToggle>
+            <span class="normal-emoji">🏷️</span>
+            <span class="fw-medium text-truncate" style="max-width: 150px;">{{ filterCategoriaGerais || 'Todas as
+              categorias' }}</span>
           </button>
-          <div ngbDropdownMenu aria-labelledby="filterGerais" class="shadow-sm border border-light-subtle rounded-4 py-2 mt-1">
-            <button type="button" ngbDropdownItem (click)="filterCategoriaGerais = ''" [class.active]="!filterCategoriaGerais">Todas as categorias</button>
-            <button type="button" ngbDropdownItem *ngFor="let cat of categoriasUnicasGerais" (click)="filterCategoriaGerais = cat.nome" [class.active]="filterCategoriaGerais === cat.nome">
+          <div ngbDropdownMenu aria-labelledby="filterGerais"
+            class="shadow-sm border border-light-subtle rounded-4 py-2 mt-1">
+            <button type="button" ngbDropdownItem (click)="filterCategoriaGerais = ''"
+              [class.active]="!filterCategoriaGerais">Todas as categorias</button>
+            <button type="button" ngbDropdownItem *ngFor="let cat of categoriasUnicasGerais"
+              (click)="filterCategoriaGerais = cat.nome" [class.active]="filterCategoriaGerais === cat.nome">
               <span class="normal-emoji me-2">{{ cat.icone }}</span> {{ cat.nome }}
             </button>
           </div>
         </div>
-        <button *ngIf="filterCategoriaGerais" class="btn-clear-filter" (click)="filterCategoriaGerais = ''" title="Limpar filtro">×</button>
+        <button *ngIf="filterCategoriaGerais" class="btn-clear-filter" (click)="filterCategoriaGerais = ''"
+          title="Limpar filtro">×</button>
         <div class="search-box">
           <span class="search-icon normal-emoji">🔍</span>
-          <input type="text" class="form-control form-control-sm search-input" placeholder="Buscar..." [(ngModel)]="searchTerm">
+          <input type="text" class="form-control form-control-sm search-input" placeholder="Buscar..."
+            [(ngModel)]="searchTerm">
         </div>
       </div>
     </div>
     <div class="table-container glass-card mb-5 shadow-sm overflow-hidden" [@fadeSlide]>
-      
+
       <div class="table-responsive">
         <table class="table modern-table mb-0 align-middle">
           <thead class="bg-surface">
             <tr>
               <th class="cursor-pointer sortable" (click)="toggleSort('data')">
-                Data <span class="normal-emoji ms-1" *ngIf="sortColumn === 'data'">{{ sortDirection === 'asc' ? '⬆️' : '⬇️' }}</span>
+                Data <span class="normal-emoji ms-1" *ngIf="sortColumn === 'data'">{{ sortDirection === 'asc' ? '⬆️' :
+                  '⬇️' }}</span>
               </th>
               <th class="text-center">Direção</th>
               <th class="cursor-pointer sortable" (click)="toggleSort('descricao')">
-                Descrição <span class="normal-emoji ms-1" *ngIf="sortColumn === 'descricao'">{{ sortDirection === 'asc' ? '⬆️' : '⬇️' }}</span>
+                Descrição <span class="normal-emoji ms-1" *ngIf="sortColumn === 'descricao'">{{ sortDirection === 'asc'
+                  ? '⬆️' : '⬇️' }}</span>
               </th>
               <th class="cursor-pointer sortable" (click)="toggleSort('categoria')">
-                Categoria / Pgto <span class="normal-emoji ms-1" *ngIf="sortColumn === 'categoria'">{{ sortDirection === 'asc' ? '⬆️' : '⬇️' }}</span>
+                Categoria / Pgto <span class="normal-emoji ms-1" *ngIf="sortColumn === 'categoria'">{{ sortDirection ===
+                  'asc' ? '⬆️' : '⬇️' }}</span>
               </th>
               <th class="text-end cursor-pointer sortable" (click)="toggleSort('valor')">
-                Valor <span class="normal-emoji ms-1" *ngIf="sortColumn === 'valor'">{{ sortDirection === 'asc' ? '⬆️' : '⬇️' }}</span>
+                Valor <span class="normal-emoji ms-1" *ngIf="sortColumn === 'valor'">{{ sortDirection === 'asc' ? '⬆️' :
+                  '⬇️' }}</span>
               </th>
               <th class="text-center">Ações</th>
             </tr>
@@ -343,14 +394,23 @@
               </td>
               <td class="description-cell fw-bold text-foreground">{{ t.descricao }}</td>
               <td class="meta-cell">
-                <span class="badge-soft" [ngClass]="{'badge-soft-success': t.direcao_name === 'receita'}"><span class="normal-emoji me-1">{{ t.categoria_icone || '🏷️' }}</span> {{ t.categoria }}</span>
-                <span class="badge-soft" [ngClass]="{'badge-soft-success': t.direcao_name === 'receita'}"><span class="normal-emoji me-1">{{ t.metodo_icone || '🪙' }}</span> {{ t.metodoPagamento }}</span>
+                <span class="badge-soft" [ngClass]="{'badge-soft-success': t.direcao_name === 'receita'}">
+                  <app-icon-display [icon]="t.categoria_icone" size="1.2rem" customClass="me-1"></app-icon-display> {{
+                  t.categoria }}
+                </span>
+                <span class="badge-soft" [ngClass]="{'badge-soft-success': t.direcao_name === 'receita'}">
+                  <app-icon-display [icon]="t.metodo_icone" size="1.2rem" customClass="me-1"
+                    defaultIcon="🪙"></app-icon-display> {{ t.metodoPagamento }}
+                </span>
               </td>
-              <td class="text-end fw-bolder text-nowrap val-cell fs-5" [ngClass]="t.direcao_name === 'gasto' ? 'text-danger' : 'text-success'">
+              <td class="text-end fw-bolder text-nowrap val-cell fs-5"
+                [ngClass]="t.direcao_name === 'gasto' ? 'text-danger' : 'text-success'">
                 {{ t.direcao_name === 'gasto' ? '-' : '+' }} {{ t.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
               </td>
               <td class="text-center">
-                <button class="btn-edit-modern" [ngStyle]="t.direcao_name === 'receita' ? {'color': 'var(--success-color)'} : {}" (click)="openEditModal(t)" title="Editar transação">Editar</button>
+                <button class="btn-edit-modern"
+                  [ngStyle]="t.direcao_name === 'receita' ? {'color': 'var(--success-color)'} : {}"
+                  (click)="openEditModal(t)" title="Editar transação">Editar</button>
               </td>
             </tr>
 
@@ -380,41 +440,65 @@
       <div class="modal-body pb-0">
         <form *ngIf="!isLoadingDependents" (ngSubmit)="salvarReceita()" #receitaForm="ngForm">
           <div class="modern-input-group mb-4 mt-2">
-            <input type="text" class="modern-input" id="recDescricao" required [(ngModel)]="novaReceita.descricao" name="recDescricao" placeholder=" ">
+            <input type="text" class="modern-input" id="recDescricao" required [(ngModel)]="novaReceita.descricao"
+              name="recDescricao" placeholder=" ">
             <label for="recDescricao" class="modern-label">Descrição da receita *</label>
           </div>
           <div class="row g-3 mb-4">
             <div class="col-6 modern-input-group">
-               <input type="text" class="modern-input" id="recValor" required 
-                      [value]="getFormattedValue(novaReceita.valor)" 
-                      (input)="onCurrencyInput($event, novaReceita, 'valor')" 
-                      name="recValor" placeholder=" ">
-               <label for="recValor" class="modern-label">Valor (R$) *</label>
+              <input type="text" class="modern-input" id="recValor" required
+                [value]="getFormattedValue(novaReceita.valor)" (input)="onCurrencyInput($event, novaReceita, 'valor')"
+                name="recValor" placeholder=" ">
+              <label for="recValor" class="modern-label">Valor (R$) *</label>
             </div>
             <div class="col-6 modern-input-group">
-               <input type="date" class="modern-input" id="recData" required [(ngModel)]="novaReceita.data" name="recData" placeholder=" ">
-               <label for="recData" class="modern-label date-label">Data *</label>
+              <input type="date" class="modern-input" id="recData" required [(ngModel)]="novaReceita.data"
+                name="recData" placeholder=" ">
+              <label for="recData" class="modern-label date-label">Data *</label>
             </div>
           </div>
           <div class="row g-3 mb-4">
             <div class="col-6 modern-input-group">
-              <select class="modern-input" id="recCategoria" required [(ngModel)]="novaReceita.categoria_id" name="recCategoria">
-                <option [ngValue]="null" disabled selected>Selecionar...</option>
-                <option *ngFor="let c of categoriasReceita" [value]="c.id">{{ c.icone || '🏷️' }} {{ c.nome }}</option>
-              </select>
-              <label for="recCategoria" class="modern-label date-label">Categoria *</label>
+              <div ngbDropdown class="custom-dropdown-select">
+                <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownRecCat">
+                  <div class="d-flex align-items-center gap-2">
+                    <app-icon-display *ngIf="getCategoriaById(novaReceita.categoria_id)" [icon]="getCategoriaById(novaReceita.categoria_id)!.icone" size="1.4rem"></app-icon-display>
+                    <span class="text-truncate">{{ getCategoriaById(novaReceita.categoria_id)?.nome || 'Selecionar' }}</span>
+                  </div>
+                  <span class="normal-emoji caret-icon">▼</span>
+                </button>
+                <div ngbDropdownMenu aria-labelledby="dropdownRecCat">
+                  <button type="button" ngbDropdownItem *ngFor="let c of categoriasReceita" (click)="novaReceita.categoria_id = c.id">
+                    <app-icon-display [icon]="c.icone" size="1.5rem"></app-icon-display>
+                    <span>{{ c.nome }}</span>
+                  </button>
+                </div>
+              </div>
+              <label class="modern-label date-label">Categoria *</label>
             </div>
             <div class="col-6 modern-input-group">
-              <select class="modern-input" id="recMetodo" required [(ngModel)]="novaReceita.metodo_pagamento_id" name="recMetodo">
-                <option [ngValue]="null" disabled selected>Selecionar...</option>
-                <option *ngFor="let m of metodos" [value]="m.id">{{ m.icone || '🪙' }} {{ m.nome }}</option>
-              </select>
-              <label for="recMetodo" class="modern-label date-label">Entrada *</label>
+              <div ngbDropdown class="custom-dropdown-select">
+                <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownRecMet">
+                  <div class="d-flex align-items-center gap-2">
+                    <app-icon-display *ngIf="getMetodoById(novaReceita.metodo_pagamento_id)" [icon]="getMetodoById(novaReceita.metodo_pagamento_id)!.icone" size="1.4rem" defaultIcon="🪙"></app-icon-display>
+                    <span class="text-truncate">{{ getMetodoById(novaReceita.metodo_pagamento_id)?.nome || 'Selecionar' }}</span>
+                  </div>
+                  <span class="normal-emoji caret-icon">▼</span>
+                </button>
+                <div ngbDropdownMenu aria-labelledby="dropdownRecMet">
+                  <button type="button" ngbDropdownItem *ngFor="let m of metodos" (click)="novaReceita.metodo_pagamento_id = m.id">
+                    <app-icon-display [icon]="m.icone" size="1.5rem" defaultIcon="🪙"></app-icon-display>
+                    <span>{{ m.nome }}</span>
+                  </button>
+                </div>
+              </div>
+              <label class="modern-label date-label">Entrada *</label>
             </div>
           </div>
           <div class="modal-footer px-0 border-0 pt-2 pb-3">
-             <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
-             <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm" [disabled]="!receitaForm.valid">Confirmar Receita</button>
+            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm"
+              [disabled]="!receitaForm.valid">Confirmar Receita</button>
           </div>
         </form>
       </div>
@@ -433,41 +517,65 @@
       <div class="modal-body pb-0">
         <form *ngIf="!isLoadingDependents" (ngSubmit)="salvarGasto()" #gastoForm="ngForm">
           <div class="modern-input-group mb-4 mt-2">
-            <input type="text" class="modern-input" id="gasDescricao" required [(ngModel)]="novoGasto.descricao" name="gasDescricao" placeholder=" ">
+            <input type="text" class="modern-input" id="gasDescricao" required [(ngModel)]="novoGasto.descricao"
+              name="gasDescricao" placeholder=" ">
             <label for="gasDescricao" class="modern-label">O que você comprou? *</label>
           </div>
           <div class="row g-3 mb-4">
             <div class="col-6 modern-input-group">
-               <input type="text" class="modern-input" id="gasValor" required 
-                      [value]="getFormattedValue(novoGasto.valor)" 
-                      (input)="onCurrencyInput($event, novoGasto, 'valor')"  
-                      name="gasValor" placeholder=" ">
-               <label for="gasValor" class="modern-label">Valor (R$) *</label>
+              <input type="text" class="modern-input" id="gasValor" required
+                [value]="getFormattedValue(novoGasto.valor)" (input)="onCurrencyInput($event, novoGasto, 'valor')"
+                name="gasValor" placeholder=" ">
+              <label for="gasValor" class="modern-label">Valor (R$) *</label>
             </div>
             <div class="col-6 modern-input-group">
-               <input type="date" class="modern-input" id="gasData" required [(ngModel)]="novoGasto.data" name="gasData" placeholder=" ">
-               <label for="gasData" class="modern-label date-label">Data *</label>
+              <input type="date" class="modern-input" id="gasData" required [(ngModel)]="novoGasto.data" name="gasData"
+                placeholder=" ">
+              <label for="gasData" class="modern-label date-label">Data *</label>
             </div>
           </div>
           <div class="row g-3 mb-4">
             <div class="col-6 modern-input-group">
-              <select class="modern-input" id="gasCategoria" required [(ngModel)]="novoGasto.categoria_id" name="gasCategoria">
-                <option [ngValue]="null" disabled selected>Selecionar...</option>
-                <option *ngFor="let c of categoriasGasto" [value]="c.id">{{ c.icone || '🏷️' }} {{ c.nome }}</option>
-              </select>
-              <label for="gasCategoria" class="modern-label date-label">Categoria *</label>
+              <div ngbDropdown class="custom-dropdown-select">
+                <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownGasCat">
+                  <div class="d-flex align-items-center gap-2">
+                    <app-icon-display *ngIf="getCategoriaById(novoGasto.categoria_id)" [icon]="getCategoriaById(novoGasto.categoria_id)!.icone" size="1.4rem"></app-icon-display>
+                    <span class="text-truncate">{{ getCategoriaById(novoGasto.categoria_id)?.nome || 'Selecionar' }}</span>
+                  </div>
+                  <span class="normal-emoji caret-icon">▼</span>
+                </button>
+                <div ngbDropdownMenu aria-labelledby="dropdownGasCat">
+                  <button type="button" ngbDropdownItem *ngFor="let c of categoriasGasto" (click)="novoGasto.categoria_id = c.id">
+                    <app-icon-display [icon]="c.icone" size="1.5rem"></app-icon-display>
+                    <span>{{ c.nome }}</span>
+                  </button>
+                </div>
+              </div>
+              <label class="modern-label date-label">Categoria *</label>
             </div>
             <div class="col-6 modern-input-group">
-              <select class="modern-input" id="gasMetodo" required [(ngModel)]="novoGasto.metodo_pagamento_id" name="gasMetodo">
-                <option [ngValue]="null" disabled selected>Selecionar...</option>
-                <option *ngFor="let m of metodos" [value]="m.id">{{ m.icone || '🪙' }} {{ m.nome }}</option>
-              </select>
-              <label for="gasMetodo" class="modern-label date-label">Saída *</label>
+              <div ngbDropdown class="custom-dropdown-select">
+                <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownGasMet">
+                  <div class="d-flex align-items-center gap-2">
+                    <app-icon-display *ngIf="getMetodoById(novoGasto.metodo_pagamento_id)" [icon]="getMetodoById(novoGasto.metodo_pagamento_id)!.icone" size="1.4rem" defaultIcon="🪙"></app-icon-display>
+                    <span class="text-truncate">{{ getMetodoById(novoGasto.metodo_pagamento_id)?.nome || 'Selecionar' }}</span>
+                  </div>
+                  <span class="normal-emoji caret-icon">▼</span>
+                </button>
+                <div ngbDropdownMenu aria-labelledby="dropdownGasMet">
+                  <button type="button" ngbDropdownItem *ngFor="let m of metodos" (click)="novoGasto.metodo_pagamento_id = m.id">
+                    <app-icon-display [icon]="m.icone" size="1.5rem" defaultIcon="🪙"></app-icon-display>
+                    <span>{{ m.nome }}</span>
+                  </button>
+                </div>
+              </div>
+              <label class="modern-label date-label">Saída *</label>
             </div>
           </div>
           <div class="modern-input-group mb-4 bg-light rounded pt-2 pb-2 px-3 border border-surface">
             <label class="form-label text-primary fw-bold mb-1 small">Modalidade da despesa</label>
-            <select class="form-select border-0 bg-transparent fw-bolder text-foreground p-0 shadow-none lh-lg" id="gasTipo" [(ngModel)]="gastoTipo" (change)="onGastoTipoChange()" name="gasTipo">
+            <select class="form-select border-0 bg-transparent fw-bolder text-foreground p-0 shadow-none lh-lg"
+              id="gasTipo" [(ngModel)]="gastoTipo" (change)="onGastoTipoChange()" name="gasTipo">
               <option value="avulsa">Compra Única (Avulso)</option>
               <option value="fixa">Conta Fixa mensal</option>
               <option value="parcelada">Compra Parcelada</option>
@@ -476,20 +584,25 @@
 
           <div class="row g-3 mb-4 conditional-area" *ngIf="gastoTipo === 'fixa' || gastoTipo === 'parcelada'">
             <div class="col-6 modern-input-group animate-pop" *ngIf="gastoTipo === 'parcelada'">
-               <input type="number" class="modern-input" id="gasParcelas" required min="2" max="120" [(ngModel)]="novoGasto.total_parcelas" name="gasParcelas" placeholder=" ">
-               <label for="gasParcelas" class="modern-label">Qtd Parcelas *</label>
+              <input type="number" class="modern-input" id="gasParcelas" required min="2" max="120"
+                [(ngModel)]="novoGasto.total_parcelas" name="gasParcelas" placeholder=" ">
+              <label for="gasParcelas" class="modern-label">Qtd Parcelas *</label>
             </div>
             <div class="col-6 modern-input-group animate-pop">
-               <input type="number" class="modern-input" id="gasDia" required min="1" max="31" [(ngModel)]="novoGasto.dia_vencimento" name="gasDia" placeholder=" ">
-               <label for="gasDia" class="modern-label">Dia Venc. *</label>
+              <input type="number" class="modern-input" id="gasDia" required min="1" max="31"
+                [(ngModel)]="novoGasto.dia_vencimento" name="gasDia" placeholder=" ">
+              <label for="gasDia" class="modern-label">Dia Venc. *</label>
             </div>
-            <div class="col-12 text-end text-muted small pb-2 animate-pop" *ngIf="gastoTipo === 'parcelada' && novoGasto.total_parcelas && novoGasto.valor">
-               Total da compra dividida: <strong>{{ (novoGasto.valor / novoGasto.total_parcelas) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} por mês</strong>
+            <div class="col-12 text-end text-muted small pb-2 animate-pop"
+              *ngIf="gastoTipo === 'parcelada' && novoGasto.total_parcelas && novoGasto.valor">
+              Total da compra dividida: <strong>{{ (novoGasto.valor / novoGasto.total_parcelas) |
+                currency:'BRL':'symbol':'1.2-2':'pt-BR' }} por mês</strong>
             </div>
           </div>
           <div class="modal-footer px-0 border-0 pt-2 pb-3">
-             <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
-             <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm" [disabled]="!gastoForm.valid">Confirmar Despesa</button>
+            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm"
+              [disabled]="!gastoForm.valid">Confirmar Despesa</button>
           </div>
         </form>
       </div>
@@ -513,10 +626,8 @@
           </div>
           <div class="row g-3 mb-4">
             <div class="col-6 modern-input-group">
-              <input type="text" class="modern-input" 
-                     [value]="getFormattedValue(editPayload.valor)" 
-                     (input)="onCurrencyInput($event, editPayload, 'valor')"  
-                     name="editValor" placeholder=" ">
+              <input type="text" class="modern-input" [value]="getFormattedValue(editPayload.valor)"
+                (input)="onCurrencyInput($event, editPayload, 'valor')" name="editValor" placeholder=" ">
               <label class="modern-label">Valor (R$)</label>
             </div>
             <div class="col-6 modern-input-group">
@@ -525,36 +636,62 @@
             </div>
           </div>
           <div class="modern-input-group mb-4" *ngIf="selectedTransaction.parcela_atual !== null">
-            <input type="number" class="modern-input" [(ngModel)]="editPayload.parcela_atual" name="editParcela" placeholder=" ">
+            <input type="number" class="modern-input" [(ngModel)]="editPayload.parcela_atual" name="editParcela"
+              placeholder=" ">
             <label class="modern-label">Alterar parcela atual</label>
           </div>
           <div class="row g-3 mb-4 mt-2">
             <div class="col-6 modern-input-group">
-               <select class="modern-input" [(ngModel)]="editPayload.categoria_id" name="editCategoria">
-                  <option *ngFor="let c of categorias" [value]="c.id">{{ c.icone || '🏷️' }} {{ c.nome }}</option>
-               </select>
-               <label class="modern-label date-label">Categoria</label>
+              <div ngbDropdown class="custom-dropdown-select">
+                <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownEditCat">
+                  <div class="d-flex align-items-center gap-2">
+                    <app-icon-display *ngIf="getCategoriaById(editPayload.categoria_id)" [icon]="getCategoriaById(editPayload.categoria_id)!.icone" size="1.4rem"></app-icon-display>
+                    <span class="text-truncate">{{ getCategoriaById(editPayload.categoria_id)?.nome || 'Selecionar' }}</span>
+                  </div>
+                  <span class="normal-emoji caret-icon">▼</span>
+                </button>
+                <div ngbDropdownMenu aria-labelledby="dropdownEditCat">
+                  <button type="button" ngbDropdownItem *ngFor="let c of categorias" (click)="editPayload.categoria_id = c.id">
+                    <app-icon-display [icon]="c.icone" size="1.5rem"></app-icon-display>
+                    <span>{{ c.nome }}</span>
+                  </button>
+                </div>
+              </div>
+              <label class="modern-label date-label">Categoria</label>
             </div>
             <div class="col-6 modern-input-group">
-               <select class="modern-input" [(ngModel)]="editPayload.metodo_pagamento_id" name="editMetodo">
-                  <option *ngFor="let m of metodos" [value]="m.id">{{ m.icone || '🪙' }} {{ m.nome }}</option>
-               </select>
-               <label class="modern-label date-label">Cobrança em</label>
+              <div ngbDropdown class="custom-dropdown-select">
+                <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownEditMet">
+                  <div class="d-flex align-items-center gap-2">
+                    <app-icon-display *ngIf="getMetodoById(editPayload.metodo_pagamento_id)" [icon]="getMetodoById(editPayload.metodo_pagamento_id)!.icone" size="1.4rem" defaultIcon="🪙"></app-icon-display>
+                    <span class="text-truncate">{{ getMetodoById(editPayload.metodo_pagamento_id)?.nome || 'Selecionar' }}</span>
+                  </div>
+                  <span class="normal-emoji caret-icon">▼</span>
+                </button>
+                <div ngbDropdownMenu aria-labelledby="dropdownEditMet">
+                  <button type="button" ngbDropdownItem *ngFor="let m of metodos" (click)="editPayload.metodo_pagamento_id = m.id">
+                    <app-icon-display [icon]="m.icone" size="1.5rem" defaultIcon="🪙"></app-icon-display>
+                    <span>{{ m.nome }}</span>
+                  </button>
+                </div>
+              </div>
+              <label class="modern-label date-label">Cobrança em</label>
             </div>
           </div>
 
           <!-- MUDANÇA DE TIPO (Apenas para recorrentes) -->
-          <div class="recorrencia-edit-box mb-4 bg-light rounded p-3 border border-info-subtle" *ngIf="selectedTransaction.recorrencia_id">
+          <div class="recorrencia-edit-box mb-4 bg-light rounded p-3 border border-info-subtle"
+            *ngIf="selectedTransaction.recorrencia_id">
             <label class="form-label text-primary fw-bold mb-1 small">Modalidade da despesa</label>
-            <select class="form-select border-0 bg-transparent fw-bolder text-foreground p-0 shadow-none lh-lg mb-2" 
-                    [(ngModel)]="editPayload.tipo" name="editTipo">
+            <select class="form-select border-0 bg-transparent fw-bolder text-foreground p-0 shadow-none lh-lg mb-2"
+              [(ngModel)]="editPayload.tipo" name="editTipo">
               <option value="fixa">Conta Fixa mensal</option>
               <option value="parcelada">Compra Parcelada</option>
             </select>
 
             <div class="modern-input-group animate-pop mt-2" *ngIf="editPayload.tipo === 'parcelada'">
-              <input type="number" class="modern-input" id="editTotalParcelas" required min="1" max="120" 
-                     [(ngModel)]="editPayload.total_parcelas" name="editTotalParcelas" placeholder=" ">
+              <input type="number" class="modern-input" id="editTotalParcelas" required min="1" max="120"
+                [(ngModel)]="editPayload.total_parcelas" name="editTotalParcelas" placeholder=" ">
               <label for="editTotalParcelas" class="modern-label">Total de Parcelas *</label>
               <small class="text-muted d-block mt-1">Ao converter, as parcelas serão recontadas pela data.</small>
             </div>
@@ -562,10 +699,12 @@
         </form>
       </div>
       <div class="modal-footer px-0 border-0 pt-2 pb-3 d-flex justify-content-between bg-light rounded-bottom">
-        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 ms-3" (click)="confirmDeleteModal()">Excluir</button>
+        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 ms-3"
+          (click)="confirmDeleteModal()">Excluir</button>
         <div class="d-flex gap-2 me-3">
-           <button type="button" class="btn btn-light rounded-pill border px-4" data-bs-dismiss="modal">Sair</button>
-           <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm" (click)="saveEdit()">Salvar Alterações</button>
+          <button type="button" class="btn btn-light rounded-pill border px-4" data-bs-dismiss="modal">Sair</button>
+          <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm" (click)="saveEdit()">Salvar
+            Alterações</button>
         </div>
       </div>
     </div>
@@ -577,7 +716,9 @@
   <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
     <div class="modal-content border-0 shadow-lg text-center p-4" style="border-radius: 24px;">
       <div class="mb-3">
-        <div class="icon-circle bg-danger bg-opacity-10 text-danger mx-auto d-flex align-items-center justify-content-center" style="width: 70px; height: 70px; border-radius: 50%;">
+        <div
+          class="icon-circle bg-danger bg-opacity-10 text-danger mx-auto d-flex align-items-center justify-content-center"
+          style="width: 70px; height: 70px; border-radius: 50%;">
           <span class="fs-1 normal-emoji">🗑️</span>
         </div>
       </div>
@@ -591,17 +732,23 @@
         <div class="alert alert-warning text-start small mb-3 p-3 rounded-3">
           <strong>⚠️ Atenção — Lançamento Fixo Mensal</strong><br>
           Este é um gasto <strong>fixo mensal</strong> que se repete todos os meses.<br><br>
-          <strong>Excluir só este mês:</strong> Remove apenas o lançamento do mês de <strong>{{ selectedTransaction?.data | date:'MMMM yyyy':'':'pt-BR' }}</strong>. Demais meses permanecem intactos.<br><br>
-          <strong>Excluir de todos os meses:</strong> Remove permanentemente este lançamento de <strong>todos os meses</strong> (passados e futuros).
+          <strong>Excluir só este mês:</strong> Remove apenas o lançamento do mês de <strong>{{
+            selectedTransaction.data | date:'MMMM yyyy':'':'pt-BR' }}</strong>. Demais meses permanecem
+          intactos.<br><br>
+          <strong>Excluir de todos os meses:</strong> Remove permanentemente este lançamento de <strong>todos os
+            meses</strong> (passados e futuros).
         </div>
         <div class="d-flex flex-column gap-2">
-          <button type="button" class="btn btn-danger rounded-pill fw-semibold py-2" (click)="deleteTransactionConfirmed(false)">
+          <button type="button" class="btn btn-danger rounded-pill fw-semibold py-2"
+            (click)="deleteTransactionConfirmed(false)">
             🗓️ Excluir só este mês
           </button>
-          <button type="button" class="btn btn-outline-danger rounded-pill fw-semibold py-2" (click)="deleteTransactionConfirmed(true)">
+          <button type="button" class="btn btn-outline-danger rounded-pill fw-semibold py-2"
+            (click)="deleteTransactionConfirmed(true)">
             🔥 Excluir de TODOS os meses
           </button>
-          <button type="button" class="btn btn-light rounded-pill fw-medium mt-1" data-bs-dismiss="modal" (click)="openModal('editModal')">Cancelar</button>
+          <button type="button" class="btn btn-light rounded-pill fw-medium mt-1" data-bs-dismiss="modal"
+            (click)="openModal('editModal')">Cancelar</button>
         </div>
       </ng-container>
 
@@ -609,18 +756,23 @@
       <ng-container *ngIf="selectedTransaction && selectedTransaction.tipo_name === 'parcelada'">
         <div class="alert alert-warning text-start small mb-3 p-3 rounded-3">
           <strong>⚠️ Atenção — Lançamento Parcelado</strong><br>
-          Este é um gasto <strong>parcelado</strong> — Parcela {{ selectedTransaction?.parcela_atual }} de {{ selectedTransaction?.recorrencia_total_parcelas }}.<br><br>
+          Este é um gasto <strong>parcelado</strong> — Parcela {{ selectedTransaction.parcela_atual }} de {{
+          selectedTransaction.recorrencia_total_parcelas }}.<br><br>
           <strong>Excluir só esta parcela:</strong> Remove apenas esta parcela específica.<br><br>
-          <strong>Excluir todas as parcelas:</strong> Remove <strong>todas as {{ selectedTransaction?.recorrencia_total_parcelas }} parcelas</strong> desta compra.
+          <strong>Excluir todas as parcelas:</strong> Remove <strong>todas as {{
+            selectedTransaction.recorrencia_total_parcelas }} parcelas</strong> desta compra.
         </div>
         <div class="d-flex flex-column gap-2">
-          <button type="button" class="btn btn-danger rounded-pill fw-semibold py-2" (click)="deleteTransactionConfirmed(false)">
+          <button type="button" class="btn btn-danger rounded-pill fw-semibold py-2"
+            (click)="deleteTransactionConfirmed(false)">
             📌 Excluir só esta parcela
           </button>
-          <button type="button" class="btn btn-outline-danger rounded-pill fw-semibold py-2" (click)="deleteTransactionConfirmed(true)">
+          <button type="button" class="btn btn-outline-danger rounded-pill fw-semibold py-2"
+            (click)="deleteTransactionConfirmed(true)">
             🔥 Excluir TODAS as parcelas
           </button>
-          <button type="button" class="btn btn-light rounded-pill fw-medium mt-1" data-bs-dismiss="modal" (click)="openModal('editModal')">Cancelar</button>
+          <button type="button" class="btn btn-light rounded-pill fw-medium mt-1" data-bs-dismiss="modal"
+            (click)="openModal('editModal')">Cancelar</button>
         </div>
       </ng-container>
 
@@ -628,10 +780,12 @@
       <ng-container *ngIf="selectedTransaction && selectedTransaction.tipo_name === 'avulsa'">
         <p class="text-muted small mb-3">Esta ação é irreversível.</p>
         <div class="d-flex flex-column gap-2">
-          <button type="button" class="btn btn-danger rounded-pill fw-semibold py-2" (click)="deleteTransactionConfirmed(false)">
+          <button type="button" class="btn btn-danger rounded-pill fw-semibold py-2"
+            (click)="deleteTransactionConfirmed(false)">
             🗑️ Confirmar Exclusão
           </button>
-          <button type="button" class="btn btn-light rounded-pill fw-medium" data-bs-dismiss="modal" (click)="openModal('editModal')">Cancelar</button>
+          <button type="button" class="btn btn-light rounded-pill fw-medium" data-bs-dismiss="modal"
+            (click)="openModal('editModal')">Cancelar</button>
         </div>
       </ng-container>
     </div>
@@ -644,18 +798,20 @@
     <div class="modal-content modern-modal shadow-lg">
       <div class="modal-header border-bottom-0 pb-2">
         <h5 class="modal-title fw-bold text-foreground d-flex align-items-center gap-2">
-           <span class="icon-circle shadow-sm bg-dark text-white normal-emoji" style="width: 32px; height: 32px; font-size: 1rem;">📄</span> 
-           Revisar Transações Importadas
+          <span class="icon-circle shadow-sm bg-dark text-white normal-emoji"
+            style="width: 32px; height: 32px; font-size: 1rem;">📄</span>
+          Revisar Transações Importadas
         </h5>
         <!-- Botão fechar com aviso caso queira descartar -->
-        <button type="button" class="btn-close" data-bs-dismiss="modal" (click)="importedTransactions = []" [disabled]="isImporting"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" (click)="importedTransactions = []"
+          [disabled]="isImporting"></button>
       </div>
       <div class="modal-body pt-0 bg-light p-4 rounded-bottom">
         <div class="alert alert-info border-info text-info-dark d-flex align-items-center mb-4">
-          <span class="normal-emoji me-2 fs-5">ℹ️</span> 
+          <span class="normal-emoji me-2 fs-5">ℹ️</span>
           Complete as Categorias e Formas de Pagamento em lote antes de salvar.
         </div>
-        
+
         <div class="table-responsive bg-surface rounded-4 shadow-sm border p-1" style="max-height: 50vh;">
           <table class="table table-hover table-borderless align-middle mb-0">
             <thead class="bg-light sticky-top">
@@ -671,55 +827,59 @@
             <tbody>
               <tr *ngFor="let item of importedTransactions; let i = index" class="border-bottom">
                 <td>
-                   <input type="date" class="form-control form-control-sm border shadow-none" [(ngModel)]="item.data">
+                  <input type="date" class="form-control form-control-sm border shadow-none" [(ngModel)]="item.data">
                 </td>
                 <td>
-                   <input type="text" class="form-control form-control-sm border shadow-none" [(ngModel)]="item.descricao">
+                  <input type="text" class="form-control form-control-sm border shadow-none"
+                    [(ngModel)]="item.descricao">
                 </td>
                 <td>
-                   <input type="text" class="form-control form-control-sm border shadow-none text-end fw-bold" 
-                          [value]="getFormattedValue(item.valor)" 
-                          (input)="onCurrencyInput($event, item, 'valor')"
-                          [ngClass]="item.direcao === 'gasto' ? 'text-danger' : 'text-success'">
+                  <input type="text" class="form-control form-control-sm border shadow-none text-end fw-bold"
+                    [value]="getFormattedValue(item.valor)" (input)="onCurrencyInput($event, item, 'valor')"
+                    [ngClass]="item.direcao === 'gasto' ? 'text-danger' : 'text-success'">
                 </td>
                 <td class="text-center">
-                   <span class="badge rounded-pill fw-medium px-3 py-2 w-100" [ngClass]="item.direcao === 'gasto' ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'">
-                     {{ item.direcao === 'gasto' ? 'Gasto' : 'Receita' }}
-                   </span>
+                  <span class="badge rounded-pill fw-medium px-3 py-2 w-100"
+                    [ngClass]="item.direcao === 'gasto' ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'">
+                    {{ item.direcao === 'gasto' ? 'Gasto' : 'Receita' }}
+                  </span>
                 </td>
                 <td>
-                   <select class="form-select form-select-sm border shadow-none" [(ngModel)]="item.categoria_id"
-                           [ngClass]="{'border-danger': !item.categoria_id}">
-                      <option [ngValue]="null" disabled selected>Selecionar...</option>
-                      <ng-container *ngIf="item.direcao === 'gasto'">
-                         <option *ngFor="let c of categoriasGasto" [value]="c.id">{{ c.nome }}</option>
-                      </ng-container>
-                      <ng-container *ngIf="item.direcao === 'receita'">
-                         <option *ngFor="let c of categoriasReceita" [value]="c.id">{{ c.nome }}</option>
-                      </ng-container>
-                   </select>
+                  <select class="form-select form-select-sm border shadow-none" [(ngModel)]="item.categoria_id"
+                    [ngClass]="{'border-danger': !item.categoria_id}">
+                    <option [ngValue]="null" disabled selected>Selecionar...</option>
+                    <ng-container *ngIf="item.direcao === 'gasto'">
+                      <option *ngFor="let c of categoriasGasto" [value]="c.id">{{ c.nome }} {{ isEmoji(c.icone) ? '('+c.icone+')' : '' }}</option>
+                    </ng-container>
+                    <ng-container *ngIf="item.direcao === 'receita'">
+                      <option *ngFor="let c of categoriasReceita" [value]="c.id">{{ c.nome }} {{ isEmoji(c.icone) ? '('+c.icone+')' : '' }}</option>
+                    </ng-container>
+                  </select>
                 </td>
                 <td>
-                   <select class="form-select form-select-sm border shadow-none" [(ngModel)]="item.metodo_pagamento_id"
-                           [ngClass]="{'border-danger': !item.metodo_pagamento_id}">
-                      <option [ngValue]="null" disabled selected>Selecionar...</option>
-                      <option *ngFor="let m of metodos" [value]="m.id">{{ m.nome }}</option>
-                   </select>
+                  <select class="form-select form-select-sm border shadow-none" [(ngModel)]="item.metodo_pagamento_id"
+                    [ngClass]="{'border-danger': !item.metodo_pagamento_id}">
+                    <option [ngValue]="null" disabled selected>Selecionar...</option>
+                    <option *ngFor="let m of metodos" [value]="m.id">{{ m.nome }} {{ isEmoji(m.icone) ? '('+m.icone+')' : '' }}</option>
+                  </select>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        
+
       </div>
       <div class="modal-footer border-0 p-3 pt-4 d-flex justify-content-between">
-        <span class="text-muted small"><strong>{{ importedTransactions.length }}</strong> registros no arquivo importado.</span>
+        <span class="text-muted small"><strong>{{ importedTransactions.length }}</strong> registros no arquivo
+          importado.</span>
         <div class="d-flex gap-2">
-           <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" (click)="importedTransactions=[]" [disabled]="isImporting">Descartar</button>
-           <button type="button" class="btn btn-dark rounded-pill px-5 shadow" (click)="saveImportedTransactions()" [disabled]="isImporting">
-              <span *ngIf="isImporting" class="spinner-border spinner-border-sm me-2"></span>
-              {{ isImporting ? 'Salvando...' : 'Confirmar e Salvar no Banco' }}
-           </button>
+          <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal"
+            (click)="importedTransactions=[]" [disabled]="isImporting">Descartar</button>
+          <button type="button" class="btn btn-dark rounded-pill px-5 shadow" (click)="saveImportedTransactions()"
+            [disabled]="isImporting">
+            <span *ngIf="isImporting" class="spinner-border spinner-border-sm me-2"></span>
+            {{ isImporting ? 'Salvando...' : 'Confirmar e Salvar no Banco' }}
+          </button>
         </div>
       </div>
     </div>
@@ -737,19 +897,22 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-0 bg-light">
-        
-        <div class="p-4 mx-4 my-3 bg-surface rounded-4 shadow-sm border d-flex justify-content-between align-items-center">
+
+        <div
+          class="p-4 mx-4 my-3 bg-surface rounded-4 shadow-sm border d-flex justify-content-between align-items-center">
           <span class="text-muted fw-bold d-flex align-items-center gap-2">
-             <span class="normal-emoji fs-4">🧮</span>
-             <span>Impacto Líquido neste grupo:</span>
+            <span class="normal-emoji fs-4">🧮</span>
+            <span>Impacto Líquido neste grupo:</span>
           </span>
-          <h2 class="m-0 fw-black" [ngClass]="detailsModalValue > 0 ? 'text-success' : (detailsModalValue < 0 ? 'text-danger' : 'text-foreground')">
+          <h2 class="m-0 fw-black"
+            [ngClass]="detailsModalValue > 0 ? 'text-success' : (detailsModalValue < 0 ? 'text-danger' : 'text-foreground')">
             {{ detailsModalValue > 0 ? '+' : '' }}{{ detailsModalValue | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
           </h2>
         </div>
 
         <div class="table-responsive px-4 pb-4">
-          <table class="table table-borderless table-hover align-middle mb-0 bg-surface shadow-sm rounded-4 overflow-hidden border">
+          <table
+            class="table table-borderless table-hover align-middle mb-0 bg-surface shadow-sm rounded-4 overflow-hidden border">
             <thead class="bg-light text-muted small text-uppercase fw-bold">
               <tr>
                 <th class="ps-4 py-3">Data</th>
@@ -760,7 +923,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let t of detailsModalTransactions" class="border-bottom hover-row" style="cursor: pointer" (click)="openEditModal(t); closeModal('cardDetailsModal')">
+              <tr *ngFor="let t of detailsModalTransactions" class="border-bottom hover-row" style="cursor: pointer"
+                (click)="openEditModal(t); closeModal('cardDetailsModal')">
                 <td class="ps-4 text-nowrap">
                   <span class="fw-bold text-foreground fs-5">{{ t.data | date:'dd' }}</span><br>
                   <small class="text-secondary">{{ t.data | date:'MMM yyyy' }}</small>
@@ -768,15 +932,26 @@
                 <td>
                   <span class="fw-bolder text-foreground">{{ t.descricao }}</span>
                   <div class="mt-1 d-flex gap-1" *ngIf="t.tipo_name !== 'avulsa'">
-                    <span *ngIf="t.tipo_name === 'parcelada'" class="badge border border-warning text-warning-dark rounded-pill fw-bold" style="font-size:0.65rem">Parcela {{ t.parcela_atual }} / {{ t.recorrencia_total_parcelas }}</span>
-                    <span *ngIf="t.tipo_name === 'fixa'" class="badge border border-info text-info rounded-pill fw-bold" style="font-size:0.65rem">Fixo</span>
+                    <span *ngIf="t.tipo_name === 'parcelada'"
+                      class="badge border border-warning text-warning-dark rounded-pill fw-bold"
+                      style="font-size:0.65rem">Parcela {{ t.parcela_atual }} / {{ t.recorrencia_total_parcelas
+                      }}</span>
+                    <span *ngIf="t.tipo_name === 'fixa'" class="badge border border-info text-info rounded-pill fw-bold"
+                      style="font-size:0.65rem">Fixo</span>
                   </div>
                 </td>
                 <td class="d-none d-md-table-cell">
-                  <span class="badge-soft mb-1"><span class="normal-emoji me-1">{{ t.categoria_icone || '🏷️' }}</span> {{ t.categoria }}</span><br>
-                  <span class="badge-soft"><span class="normal-emoji me-1">{{ t.metodo_icone || '🪙' }}</span> {{ t.metodoPagamento }}</span>
+                  <span class="badge-soft mb-1">
+                    <app-icon-display [icon]="t.categoria_icone" size="1.2rem" customClass="me-1"></app-icon-display>
+                    {{ t.categoria }}
+                  </span><br>
+                  <span class="badge-soft">
+                    <app-icon-display [icon]="t.metodo_icone" size="1.2rem" customClass="me-1" defaultIcon="🪙"></app-icon-display>
+                    {{ t.metodoPagamento }}
+                  </span>
                 </td>
-                <td class="text-end text-nowrap fs-5 fw-black" [ngClass]="t.direcao_name === 'gasto' ? 'text-danger' : 'text-success'">
+                <td class="text-end text-nowrap fs-5 fw-black"
+                  [ngClass]="t.direcao_name === 'gasto' ? 'text-danger' : 'text-success'">
                   {{ t.direcao_name === 'gasto' ? '-' : '+' }} {{ t.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                 </td>
                 <td class="text-center pe-4">
@@ -785,7 +960,8 @@
               </tr>
               <tr *ngIf="detailsModalTransactions.length === 0">
                 <td colspan="5" class="text-center text-muted py-5">
-                  <span class="fs-1 normal-emoji d-block opacity-50 mb-3">🍃</span>Nenhuma transação atrelada a este extrato.
+                  <span class="fs-1 normal-emoji d-block opacity-50 mb-3">🍃</span>Nenhuma transação atrelada a este
+                  extrato.
                 </td>
               </tr>
             </tbody>
@@ -794,7 +970,8 @@
 
       </div>
       <div class="modal-footer border-0 p-3 bg-surface">
-        <button type="button" class="btn btn-light rounded-pill border px-5 fw-bold" data-bs-dismiss="modal">Retornar</button>
+        <button type="button" class="btn btn-light rounded-pill border px-5 fw-bold"
+          data-bs-dismiss="modal">Retornar</button>
       </div>
     </div>
   </div>
@@ -803,11 +980,11 @@
 <!-- Botões Flutuantes de Ação -->
 <div class="floating-actions-container" [@fadeSlide]>
   <button class="btn-modern btn-modern-success shadow-lg" data-bs-toggle="modal" data-bs-target="#receitaModal">
-    <span class="icon normal-emoji">➕</span> 
+    <span class="icon normal-emoji">➕</span>
     <span class="btn-text">Adicionar Receita</span>
   </button>
   <button class="btn-modern btn-modern-danger shadow-lg" data-bs-toggle="modal" data-bs-target="#gastoModal">
-    <span class="icon normal-emoji">➖</span> 
+    <span class="icon normal-emoji">➖</span>
     <span class="btn-text">Adicionar Gasto</span>
   </button>
 </div>

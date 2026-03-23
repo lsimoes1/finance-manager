@@ -38,7 +38,7 @@
             <label class="form-label text-primary fw-bold small text-uppercase mb-2">Adicionar Nova Categoria</label>
             <div class="d-flex gap-2">
               <button class="btn btn-light border bg-surface rounded shadow-sm text-center px-2 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 50px;" (click)="toggleEmojiPicker('new')" title="Escolher Ícone">
-                <span class="normal-emoji fs-5">{{ novaCategoriaIcone }}</span>
+                <app-icon-display [icon]="novaCategoriaIcone" size="1.25rem"></app-icon-display>
               </button>
               <input type="text" class="form-control form-control-sm elegant-input h-100 flex-grow-1" placeholder="Ex: Mercado" [(ngModel)]="novaCategoriaNome" (keyup.enter)="adicionarCategoria()">
               <select class="form-select form-select-sm elegant-input h-100 flex-shrink-0" style="width: 140px;" [(ngModel)]="novaCategoriaTipo">
@@ -52,7 +52,9 @@
             <div *ngIf="showEmojiPickerCat" class="position-absolute bg-surface border rounded-4 shadow-lg p-3 z-3" style="top: 85px; left: 1rem; width: 320px; max-height: 250px; overflow-y: auto;">
               <input type="text" class="form-control form-control-sm elegant-input mb-3" placeholder="🔍 Buscar (ex: moto, ifood...)" [(ngModel)]="emojiSearchCat">
               <div class="d-flex flex-wrap gap-2">
-                 <button *ngFor="let item of getFilteredEmojis(emojiSearchCat)" class="btn btn-light rounded border-0 fs-4 p-1 normal-emoji hover-primary flex-shrink-0" style="width: 40px; height: 40px;" (click)="selectEmoji(item.e, 'new')" [title]="item.n">{{ item.e }}</button>
+                 <button *ngFor="let item of getFilteredEmojis(emojiSearchCat)" class="btn btn-light rounded border-0 fs-4 p-1 normal-emoji hover-primary flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" (click)="selectEmoji(item.icon, 'new')" [title]="item.name">
+                   <app-icon-display [icon]="item.icon" size="1.5rem"></app-icon-display>
+                 </button>
               </div>
             </div>
           </div>
@@ -63,8 +65,8 @@
               <li *ngFor="let c of categorias" class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-surface">
                 <!-- Modo Visualização -->
                 <div *ngIf="!editCategoria || editCategoria.id !== c.id" class="d-flex align-items-center gap-3">
-                  <div class="icon-circle shadow-sm" [ngClass]="c.tipo_categoria === 1 ? 'bg-success text-white' : 'bg-primary text-white'">
-                    <span class="fw-bold fs-5 normal-emoji">{{ c.icone || '🏷️' }}</span>
+                  <div class="icon-circle shadow-sm d-flex align-items-center justify-content-center" [ngClass]="c.tipo_categoria === 1 ? 'bg-success text-white' : 'bg-primary text-white'">
+                    <app-icon-display [icon]="c.icone" size="1.25rem"></app-icon-display>
                   </div>
                   <div>
                     <strong class="text-foreground d-block">{{ c.nome }}</strong>
@@ -79,8 +81,8 @@
                 <!-- Modo Edição -->
                 <div *ngIf="editCategoria && editCategoria.id === c.id" class="w-100 bg-surface p-3 rounded-4 shadow-sm border border-primary position-relative">
                   <div class="d-flex gap-2 mb-2">
-                    <button class="btn btn-light border bg-surface shadow-sm text-center px-1 flex-shrink-0" style="width: 45px;" (click)="toggleEmojiPicker('edit')">
-                      <span class="normal-emoji">{{ editCategoria.icone || '🏷️' }}</span>
+                    <button class="btn btn-light border bg-surface shadow-sm text-center px-1 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 45px;" (click)="toggleEmojiPicker('edit')">
+                      <app-icon-display [icon]="editCategoria.icone" size="1.1rem"></app-icon-display>
                     </button>
                     <input type="text" class="form-control form-control-sm flex-grow-1" [(ngModel)]="editCategoria.nome">
                     <select class="form-select form-select-sm" style="width: 100px;" [(ngModel)]="editCategoria.tipo_categoria">
@@ -92,7 +94,9 @@
                   <div *ngIf="showEmojiPickerEditCat" class="position-absolute bg-surface border rounded-4 shadow-lg p-3 z-3" style="top: 55px; left: 1rem; width: 300px; max-height: 220px; overflow-y: auto;">
                     <input type="text" class="form-control form-control-sm elegant-input mb-3" placeholder="🔍 Buscar..." [(ngModel)]="emojiSearchEditCat">
                     <div class="d-flex flex-wrap gap-1">
-                       <button *ngFor="let item of getFilteredEmojis(emojiSearchEditCat)" class="btn btn-light rounded border-0 fs-5 p-1 normal-emoji hover-primary flex-shrink-0" style="width: 35px; height: 35px;" (click)="selectEmoji(item.e, 'edit')" [title]="item.n">{{ item.e }}</button>
+                       <button *ngFor="let item of getFilteredEmojis(emojiSearchEditCat)" class="btn btn-light rounded border-0 fs-5 p-1 normal-emoji hover-primary flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;" (click)="selectEmoji(item.icon, 'edit')" [title]="item.name">
+                         <app-icon-display [icon]="item.icon" size="1.2rem"></app-icon-display>
+                       </button>
                     </div>
                   </div>
 
@@ -120,7 +124,7 @@
             <label class="form-label text-foreground fw-bold small text-uppercase mb-2">Adicionar Forma de Pgto</label>
             <div class="d-flex gap-2 mb-2">
               <button class="btn btn-light border bg-surface rounded shadow-sm text-center px-2 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 50px;" (click)="toggleEmojiPickerMet('new')" title="Escolher Ícone">
-                <span class="normal-emoji fs-5">{{ novoMetodoIcone }}</span>
+                <app-icon-display [icon]="novoMetodoIcone" size="1.25rem"></app-icon-display>
               </button>
               <input type="text" class="form-control form-control-sm elegant-input h-100 flex-grow-1" placeholder="Ex: Cartão de Crédito" [(ngModel)]="novoMetodoNome" (keyup.enter)="adicionarMetodo()">
               <button class="btn btn-dark rounded-circle shadow-sm flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px" (click)="adicionarMetodo()">➕</button>
@@ -134,7 +138,9 @@
             <div *ngIf="showEmojiPickerMet" class="position-absolute bg-surface border rounded-4 shadow-lg p-3 z-3" style="top: 85px; left: 1rem; width: 320px; max-height: 250px; overflow-y: auto;">
               <input type="text" class="form-control form-control-sm elegant-input mb-3" placeholder="🔍 Buscar (ex: pix, itau...)" [(ngModel)]="emojiSearchMet">
               <div class="d-flex flex-wrap gap-2">
-                 <button *ngFor="let item of getFilteredEmojis(emojiSearchMet)" class="btn btn-light rounded border-0 fs-4 p-1 normal-emoji hover-primary flex-shrink-0" style="width: 40px; height: 40px;" (click)="selectEmojiMet(item.e, 'new')" [title]="item.n">{{ item.e }}</button>
+                 <button *ngFor="let item of getFilteredEmojis(emojiSearchMet)" class="btn btn-light rounded border-0 fs-4 p-1 normal-emoji hover-primary flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" (click)="selectEmojiMet(item.icon, 'new')" [title]="item.name">
+                   <app-icon-display [icon]="item.icon" size="1.5rem"></app-icon-display>
+                 </button>
               </div>
             </div>
           </div>
@@ -144,9 +150,9 @@
             <ul class="list-group list-group-flush" [@listAnim]="metodos.length">
               <li *ngFor="let m of metodos" class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-surface">
                 <!-- Modo Visualização -->
-                <div *ngIf="!editMetodo || editMetodo.id !== m.id" class="d-flex align-items-center gap-3">
-                  <div class="icon-circle shadow-sm bg-dark text-white">
-                     <span class="normal-emoji fw-bold small">{{ m.icone || '🪙' }}</span>
+                 <div *ngIf="!editMetodo || editMetodo.id !== m.id" class="d-flex align-items-center gap-3">
+                  <div class="icon-circle shadow-sm bg-dark text-white d-flex align-items-center justify-content-center">
+                     <app-icon-display [icon]="m.icone" size="1.1rem" defaultIcon="🪙"></app-icon-display>
                   </div>
                   <strong class="text-foreground">{{ m.nome }}</strong>
                 </div>
@@ -156,10 +162,10 @@
                 </div>
 
                 <!-- Modo Edição -->
-                <div *ngIf="editMetodo && editMetodo.id === m.id" class="w-100 bg-surface p-3 rounded-4 shadow-sm border border-dark position-relative">
+                 <div *ngIf="editMetodo && editMetodo.id === m.id" class="w-100 bg-surface p-3 rounded-4 shadow-sm border border-dark position-relative">
                   <div class="d-flex gap-2 mb-2">
-                    <button class="btn btn-light border bg-surface shadow-sm text-center px-1 flex-shrink-0" style="width: 45px;" (click)="toggleEmojiPickerMet('edit')">
-                      <span class="normal-emoji">{{ editMetodo.icone || '🪙' }}</span>
+                    <button class="btn btn-light border bg-surface shadow-sm text-center px-1 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 45px;" (click)="toggleEmojiPickerMet('edit')">
+                      <app-icon-display [icon]="editMetodo.icone" size="1.1rem" defaultIcon="🪙"></app-icon-display>
                     </button>
                     <input type="text" class="form-control form-control-sm flex-grow-1" [(ngModel)]="editMetodo.nome">
                   </div>
@@ -172,7 +178,9 @@
                   <div *ngIf="showEmojiPickerEditMet" class="position-absolute bg-surface border rounded-4 shadow-lg p-3 z-3" style="top: 55px; left: 1rem; width: 300px; max-height: 220px; overflow-y: auto;">
                     <input type="text" class="form-control form-control-sm elegant-input mb-3" placeholder="🔍 Buscar..." [(ngModel)]="emojiSearchEditMet">
                     <div class="d-flex flex-wrap gap-1">
-                       <button *ngFor="let item of getFilteredEmojis(emojiSearchEditMet)" class="btn btn-light rounded border-0 fs-5 p-1 normal-emoji hover-primary flex-shrink-0" style="width: 35px; height: 35px;" (click)="selectEmojiMet(item.e, 'edit')" [title]="item.n">{{ item.e }}</button>
+                       <button *ngFor="let item of getFilteredEmojis(emojiSearchEditMet)" class="btn btn-light rounded border-0 fs-5 p-1 normal-emoji hover-primary flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;" (click)="selectEmojiMet(item.icon, 'edit')" [title]="item.name">
+                         <app-icon-display [icon]="item.icon" size="1.2rem"></app-icon-display>
+                       </button>
                     </div>
                   </div>
 
@@ -191,30 +199,24 @@
     </div>
   </ng-container>
 
-  <!-- ================= PERÍODO FINANCEIRO ================= -->
-  <div class="periodo-config-card mt-4" [@fadeSlide]>
-    <div class="periodo-config-inner">
-      <div class="d-flex align-items-center gap-3 mb-3">
-        <div class="periodo-icon-circle">⚙️</div>
-        <div>
-          <h5 class="fw-bold text-foreground m-0">Período Financeiro</h5>
-          <p class="text-muted small m-0">Defina o dia em que seu ciclo financeiro começa a cada mês.</p>
-        </div>
-      </div>
+  <!-- ================= CONFIGURAÇÕES ADICIONAIS ================= -->
+  <div class="row g-4 mt-2" [@fadeSlide]>
+    
+    <!-- PERÍODO FINANCEIRO -->
+    <div class="col-lg-7">
+      <div class="periodo-config-card">
+        <div class="periodo-config-inner">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="periodo-icon-circle">⚙️</div>
+            <div>
+              <h5 class="fw-bold text-foreground m-0">Período Financeiro</h5>
+              <p class="text-muted small m-0">Defina o dia em que seu ciclo financeiro começa.</p>
+            </div>
+          </div>
 
-      <div class="d-flex flex-wrap align-items-center gap-4">
-        <div class="periodo-input-group">
-          <label class="form-label text-primary fw-bold small text-uppercase mb-1">Dia de Início do Ciclo</label>
-          <div class="d-flex align-items-center gap-3">
+          <div class="d-flex flex-wrap align-items-center gap-3">
             <div class="day-input-wrapper">
-              <input
-                type="number"
-                class="day-input"
-                [(ngModel)]="diaInicioPeriodoInput"
-                min="1"
-                max="28"
-                placeholder="1"
-              >
+              <input type="number" class="day-input" [(ngModel)]="diaInicioPeriodoInput" min="1" max="28">
               <span class="day-suffix">de cada mês</span>
             </div>
             <button class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold" (click)="salvarPeriodo()" [disabled]="isLoadingPeriodo">
@@ -227,25 +229,62 @@
             <span class="text-muted small">{{ exemploPeriodo }}</span>
           </div>
         </div>
+      </div>
+    </div>
 
-        <div class="periodo-explainer">
-          <div class="d-flex align-items-start gap-2 mb-2">
-            <span class="normal-emoji" style="font-size: 1.1rem; flex-shrink: 0; margin-top: 2px;">💡</span>
+    <!-- IMPORTAR ÍCONES -->
+    <div class="col-lg-5">
+      <div class="icon-upload-card h-100">
+        <div class="icon-upload-inner d-flex flex-column justify-content-center">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="icon-upload-icon-circle">🎨</div>
             <div>
-              <p class="mb-1 small fw-semibold text-foreground">Como funciona?</p>
-              <p class="mb-0 small text-muted">
-                Ao selecionar <strong>"Março"</strong> no Controle Mensal, o sistema exibirá
-                transações de <strong>27/fev</strong> a <strong>26/mar</strong>.
-              </p>
+              <h5 class="fw-bold text-foreground m-0">Importar Ícone .SVG</h5>
+              <p class="text-muted small m-0">Adicione logos de bancos ou categorias.</p>
             </div>
           </div>
-          <div class="d-flex align-items-start gap-2">
-            <span class="normal-emoji" style="font-size: 1.1rem; flex-shrink: 0; margin-top: 2px;">⚠️</span>
-            <p class="mb-0 small text-muted">O dia deve estar entre <strong>1</strong> e <strong>28</strong> para compatibilidade com todos os meses.</p>
+
+          <div class="d-flex flex-column gap-2">
+            <div class="input-group input-group-sm">
+              <input #iconInput type="file" class="form-control elegant-input" accept=".svg,.png,.ico,.icon" (change)="onIconFileSelected($event)">
+              <button class="btn btn-success px-4 fw-bold" (click)="uploadIcon()" [disabled]="!selectedIconFile || isUploadingIcon">
+                <span *ngIf="isUploadingIcon" class="spinner-border spinner-border-sm me-1"></span>
+                <span>Subir</span>
+              </button>
+            </div>
+            <small class="text-muted opacity-75">Suportados: .SVG, .PNG, .ICO. O nome do arquivo será o nome do ícone.</small>
+          </div>
+
+          <!-- Tabela de Ícones já existentes -->
+          <div class="mt-4 pt-3 border-top" *ngIf="customIcons.length > 0">
+            <label class="form-label fw-bold small text-uppercase mb-2 text-success">Ícones Importados ({{ customIcons.length }})</label>
+            <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light sticky-top">
+                  <tr>
+                    <th class="small py-2">Preview</th>
+                    <th class="small py-2">Nome</th>
+                    <th class="small py-2 text-end">Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let icon of customIcons">
+                    <td>
+                      <app-icon-display [icon]="icon.path" size="1.2rem"></app-icon-display>
+                    </td>
+                    <td class="small text-truncate" style="max-width: 120px;">{{ icon.nome }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-link btn-sm p-0 text-danger hover-opacity" (click)="deleteIcon(icon.filename)" title="Excluir">🗑️</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -272,6 +311,28 @@
           <button type="button" class="btn btn-danger rounded-pill fw-medium shadow-sm transition-all" (click)="confirmDelete()">Sim, Apagar Definitivamente</button>
           <button type="button" class="btn btn-light rounded-pill fw-medium border transition-all" data-bs-dismiss="modal">Cancelar e Voltar</button>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Deletar Ícone -->
+<div class="modal fade" id="deleteIconModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 rounded-4 shadow-lg text-center p-4">
+      <div class="d-flex justify-content-center mb-3">
+        <div class="icon-circle bg-danger-subtle text-danger" style="width: 60px; height: 60px; font-size: 1.5rem;">
+          🗑️
+        </div>
+      </div>
+      <h5 class="fw-bold text-foreground mb-1">Apagar Ícone?</h5>
+      <p class="text-muted small mb-0">Deseja apagar o ícone: <br>
+         <strong class="text-foreground text-truncate d-block">{{ iconToDelete?.nome }}</strong>
+      </p>
+      
+      <div class="d-flex flex-column gap-2 mt-4">
+        <button type="button" class="btn btn-danger rounded-pill fw-medium" (click)="confirmDeleteIcon()">Sim, Apagar</button>
+        <button type="button" class="btn btn-light rounded-pill fw-medium border" data-bs-dismiss="modal">Cancelar</button>
       </div>
     </div>
   </div>

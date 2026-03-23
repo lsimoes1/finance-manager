@@ -11,16 +11,19 @@ import { Periodo } from '../../core/models/periodo.model';
 
 interface ChartData {
   label: string;
+  icon?: string;
   name: string;
   valor: number;
   percentual: number;
   cor: string;
 }
 
+import { IconDisplayComponent } from '../../shared/components/icon-display/icon-display.component';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgbDropdownModule],
+  imports: [CommonModule, FormsModule, NgbDropdownModule, IconDisplayComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   animations: [
@@ -181,40 +184,46 @@ export class DashboardComponent implements OnInit {
     this.taxaGasto = this.totalReceitas > 0 ? (this.totalGastos / this.totalReceitas) : 0;
 
     // 2. Agrupar por Categoria (apenas gastos reais)
-    const mapCat = new Map<string, { label: string, valor: number }>();
+    const mapCat = new Map<string, { label: string, icon: string, valor: number }>();
     this.transacoes.filter(t => t.direcao_name === 'gasto' && t.metodo_tipo !== 'investimento').forEach(t => {
-      const label = (t.categoria_icone || '🏷️') + ' ' + t.categoria;
-      const current = mapCat.get(t.categoria) || { label, valor: 0 };
-      mapCat.set(t.categoria, { label, valor: current.valor + Number(t.valor) });
+      const current = mapCat.get(t.categoria) || { label: t.categoria, icon: t.categoria_icone || '🏷️', valor: 0 };
+      mapCat.set(t.categoria, { label: t.categoria, icon: t.categoria_icone || '🏷️', valor: current.valor + Number(t.valor) });
     });
 
     this.gastosPorCategoria = Array.from(mapCat.entries())
-      .map(([name, data], index) => ({
+      .map(([name, data]) => ({
         label: data.label,
+        icon: data.icon,
         name,
         valor: data.valor,
         percentual: this.totalGastos > 0 ? data.valor / this.totalGastos : 0,
-        cor: this.COLORS[index % this.COLORS.length]
+        cor: this.COLORS[this.gastosPorCategoria.length % this.COLORS.length] // This index logic was broken too
       }))
       .sort((a, b) => b.valor - a.valor);
 
+    // Fix the color index after mapping
+    this.gastosPorCategoria.forEach((item, index) => item.cor = this.COLORS[index % this.COLORS.length]);
+
     // 3. Agrupar por Método de Pagamento (apenas gastos reais)
-    const mapMet = new Map<string, { label: string, valor: number }>();
+    const mapMet = new Map<string, { label: string, icon: string, valor: number }>();
     this.transacoes.filter(t => t.direcao_name === 'gasto' && t.metodo_tipo !== 'investimento').forEach(t => {
-      const label = (t.metodo_icone || '🪙') + ' ' + t.metodoPagamento;
-      const current = mapMet.get(t.metodoPagamento) || { label, valor: 0 };
-      mapMet.set(t.metodoPagamento, { label, valor: current.valor + Number(t.valor) });
+      const current = mapMet.get(t.metodoPagamento) || { label: t.metodoPagamento, icon: t.metodo_icone || '🪙', valor: 0 };
+      mapMet.set(t.metodoPagamento, { label: t.metodoPagamento, icon: t.metodo_icone || '🪙', valor: current.valor + Number(t.valor) });
     });
 
     this.gastosPorMetodo = Array.from(mapMet.entries())
-      .map(([name, data], index) => ({
+      .map(([name, data]) => ({
         label: data.label,
+        icon: data.icon,
         name,
         valor: data.valor,
         percentual: this.totalGastos > 0 ? data.valor / this.totalGastos : 0,
-        cor: this.COLORS[(index + 3) % this.COLORS.length] // Pega cores diferentes do array
+        cor: '#ccc'
       }))
       .sort((a, b) => b.valor - a.valor);
+
+    // Fix the color index after mapping
+    this.gastosPorMetodo.forEach((item, index) => item.cor = this.COLORS[(index + 3) % this.COLORS.length]);
   }
 
   get conicGradientGastos(): string {

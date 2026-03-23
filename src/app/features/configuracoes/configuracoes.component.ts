@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -7,11 +7,12 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
 import { FinanceService } from '../../core/services/finance.service';
 import { Categoria } from '../../core/models/categoria.model';
 import { MetodoPagamento } from '../../core/models/metodo-pagamento.model';
+import { IconDisplayComponent } from '../../shared/components/icon-display/icon-display.component';
 
 @Component({
   selector: 'app-configuracoes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, IconDisplayComponent],
   templateUrl: './configuracoes.component.html',
   styleUrl: './configuracoes.component.scss',
   animations: [
@@ -43,10 +44,20 @@ export class ConfiguracoesComponent implements OnInit {
   errorMsg: string | null = null;
   successMsg: string | null = null;
 
+  customIcons: { nome: string; path: string; filename: string }[] = [];
+
   // --- Período Financeiro ---
   diaInicioPeriodo: number = 1;
   diaInicioPeriodoInput: number = 1;
   isLoadingPeriodo = false;
+
+  // --- Upload de Ícones ---
+  @ViewChild('iconInput') iconInput!: ElementRef;
+  selectedIconFile: File | null = null;
+  isUploadingIcon = false;
+  
+  // Modal de Exclusão de Ícone
+  iconToDelete: { nome: string; filename: string } | null = null;
 
   // --- UI State Variáveis --- //
   novaCategoriaNome = '';
@@ -144,11 +155,13 @@ export class ConfiguracoesComponent implements OnInit {
     this.isLoading = true;
     forkJoin({
       cat: this.financeService.getCategorias(),
-      met: this.financeService.getMetodosPagamento()
+      met: this.financeService.getMetodosPagamento(),
+      icons: this.financeService.getCustomIcons()
     }).subscribe({
-      next: ({ cat, met }) => {
+      next: ({ cat, met, icons }) => {
         this.categorias = cat;
         this.metodos = met;
+        this.customIcons = icons;
         this.isLoading = false;
       },
       error: (err) => {
@@ -159,11 +172,87 @@ export class ConfiguracoesComponent implements OnInit {
     });
   }
 
-  // --- EMOJI PICKER --- //
+  onIconFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      const fn = file.name.toLowerCase();
+      if (fn.endsWith('.svg') || fn.endsWith('.icon') || fn.endsWith('.png') || fn.endsWith('.ico')) {
+        this.selectedIconFile = file;
+      } else {
+        this.showError('Apenas arquivos .svg, .png, .ico ou .icon são permitidos.');
+        event.target.value = '';
+      }
+    }
+  }
+
+  uploadIcon(): void {
+    if (!this.selectedIconFile) return;
+    this.isUploadingIcon = true;
+    this.financeService.uploadIcon(this.selectedIconFile).subscribe({
+      next: (res) => {
+        this.showSuccess(`Ícone "${res.icon.nome}" enviado com sucesso!`);
+        this.selectedIconFile = null;
+        this.isUploadingIcon = false;
+        
+        // Resetar o input HTML
+        if (this.iconInput) {
+          this.iconInput.nativeElement.value = '';
+        }
+        
+        this.loadIconsList();
+      },
+      error: (err) => {
+        this.showError('Erro ao enviar ícone. Verifique o formato.');
+        this.isUploadingIcon = false;
+      }
+    });
+  }
+
+  loadIconsList(): void {
+    this.financeService.getCustomIcons().subscribe(icons => {
+      this.customIcons = icons;
+    });
+  }
+
+  deleteIcon(filename: string): void {
+    const icon = this.customIcons.find(x => x.filename === filename);
+    if (!icon) return;
+    
+    this.iconToDelete = { nome: icon.nome, filename: icon.filename };
+    const modalElement = document.getElementById('deleteIconModal');
+    if (modalElement) {
+       // @ts-ignore
+       const modal = new bootstrap.Modal(modalElement);
+       modal.show();
+    }
+  }
+
+  confirmDeleteIcon(): void {
+    if (!this.iconToDelete) return;
+    
+    this.financeService.deleteCustomIcon(this.iconToDelete.filename).subscribe({
+      next: () => {
+        const modalElement = document.getElementById('deleteIconModal');
+        if (modalElement) {
+           // @ts-ignore
+           const modal = bootstrap.Modal.getInstance(modalElement);
+           if(modal) modal.hide();
+        }
+        this.showSuccess('Ícone excluído.');
+        this.loadIconsList();
+        this.iconToDelete = null;
+      },
+      error: () => this.showError('Não foi possível excluir o ícone. Ele pode estar sendo usado.')
+    });
+  }
+
+  // --- ICON PICKER (Emojis + SVGs) --- //
   getFilteredEmojis(term: string) {
-    if (!term) return this.EMOJI_DB;
     const t = term.toLowerCase();
-    return this.EMOJI_DB.filter(x => x.n.includes(t));
+    const emojis = this.EMOJI_DB.filter(x => !t || x.n.includes(t)).map(x => ({ icon: x.e, name: x.n, isSvg: false }));
+    const svgs = this.customIcons.filter(x => !t || x.nome.includes(t)).map(x => ({ icon: x.path, name: x.nome, isSvg: true }));
+    
+    return [...svgs, ...emojis];
   }
 
   toggleEmojiPicker(type: 'new'|'edit') {
@@ -179,6 +268,8 @@ export class ConfiguracoesComponent implements OnInit {
       this.editCategoria.icone = emoji;
       this.showEmojiPickerEditCat = false;
     }
+    this.emojiSearchCat = '';
+    this.emojiSearchEditCat = '';
   }
 
   toggleEmojiPickerMet(type: 'new'|'edit') {
@@ -194,6 +285,8 @@ export class ConfiguracoesComponent implements OnInit {
       this.editMetodo.icone = emoji;
       this.showEmojiPickerEditMet = false;
     }
+    this.emojiSearchMet = '';
+    this.emojiSearchEditMet = '';
   }
 
   // --- CATEGORIAS --- //

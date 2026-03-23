@@ -105,6 +105,7 @@
               <div class="d-flex justify-content-between mb-1">
                 <span class="fw-semibold text-foreground d-flex align-items-center gap-2">
                   <span class="color-dot" [style.background-color]="item.cor"></span>
+                  <app-icon-display [icon]="item.icon!" size="0.9rem"></app-icon-display>
                   {{ item.label }}
                 </span>
                 <span class="fw-bold text-muted">{{ item.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} ({{ item.percentual | percent:'1.0-1' }})</span>
@@ -130,7 +131,10 @@
           <div *ngIf="gastosPorMetodo.length > 0">
             <div class="bar-row mb-4 bg-surface p-3 rounded shadow-sm border" *ngFor="let item of gastosPorMetodo" style="border-left: 4px solid !important; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" [style.border-color]="item.cor" (click)="openDetails('metodo', item)">
               <div class="d-flex justify-content-between mb-2">
-                <span class="fw-bold fs-6 text-foreground">{{ item.label }}</span>
+                <span class="fw-bold fs-6 text-foreground d-flex align-items-center gap-2">
+                  <app-icon-display [icon]="item.icon!" size="1.1rem" defaultIcon="🪙"></app-icon-display>
+                  {{ item.label }}
+                </span>
                 <span class="badge bg-light border text-foreground rounded-pill px-3 py-2 fs-6 shadow-sm">
                   {{ item.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                 </span>
@@ -200,8 +204,8 @@
                   </div>
                 </td>
                 <td class="d-none d-md-table-cell">
-                  <span class="badge-soft mb-1"><span class="normal-emoji me-1">{{ t.categoria_icone || '🏷️' }}</span> {{ t.categoria }}</span><br>
-                  <span class="badge-soft"><span class="normal-emoji me-1">{{ t.metodo_icone || '🪙' }}</span> {{ t.metodoPagamento }}</span>
+                  <span class="badge-soft mb-1"><app-icon-display [icon]="t.categoria_icone" size="0.8rem" customClass="me-1"></app-icon-display> {{ t.categoria }}</span><br>
+                  <span class="badge-soft"><app-icon-display [icon]="t.metodo_icone" size="0.8rem" customClass="me-1" defaultIcon="🪙"></app-icon-display> {{ t.metodoPagamento }}</span>
                 </td>
                 <td class="text-end text-nowrap fs-5 fw-black text-danger pe-4">
                   - {{ t.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
