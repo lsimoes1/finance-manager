@@ -289,4 +289,25 @@ cd back-end && npm test
 - No **Back-end**, validamos o ciclo completo de transações, cálculos de saldo acumulado e CRUD de categorias/investimentos em um banco SQLite isolado.
 - No **Front-end**, testamos serviços de comunicação (FinanceService), lógica de manipulação de estados do `MensalComponent` e a integridade da UI do Angular.
 
+---
+
+## ℹ️ Informações Adicionais
+
+### 🎨 Funcionalidade de Upload de Ícones
+Para oferecer uma experiência premium e personalizada, o **Finance Manager** permite que o usuário adicione seus próprios logotipos de bancos ou ícones de categorias que não estão no set padrão de emojis.
+
+**Como utilizar:**
+1. Vá até a tela de **Configurações**.
+2. Na seção "Importar Ícone .SVG", escolha um arquivo do seu computador (formatos suportados: `.svg`, `.png`, `.ico`).
+3. Clique em **Subir**. O ícone aparecerá na lista de "Ícones Importados".
+4. Ao criar ou editar uma Categoria ou Método de Pagamento, clique no botão de ícone para abrir o seletor. Seus ícones importados estarão no topo da lista!
+
+### 📦 Biblioteca de Persistência de Arquivos
+Para gerenciar o recebimento e armazenamento dos ícones no servidor, utilizamos a biblioteca **Multer**.
+
+- **Versão:** `^2.1.1`
+- **O que é:** O **Multer** é um middleware para **Node.js** especializado no tratamento de corpos de requisições `multipart/form-data`. Ele é essencial para o upload de arquivos, permitindo que a API receba fluxos de dados binários (como imagens), valide formatos e salve os arquivos de forma organizada em pastas específicas do disco, tornando-os disponíveis como ativos estáticos para o Front-end.
+
+---
+
 
