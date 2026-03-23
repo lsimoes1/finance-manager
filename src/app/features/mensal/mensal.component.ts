@@ -17,11 +17,12 @@ import { Transacao, TransacaoPayload, TransacaoEditPayload } from '../../core/mo
 import { Categoria } from '../../core/models/categoria.model';
 import { MetodoPagamento } from '../../core/models/metodo-pagamento.model';
 import { Periodo } from '../../core/models/periodo.model';
+import { IconDisplayComponent } from '../../shared/components/icon-display/icon-display.component';
 
 @Component({
   selector: 'app-mensal',
   standalone: true,
-  imports: [CommonModule, FormsModule, CurrencyPipe, DatePipe, NgbDropdownModule],
+  imports: [CommonModule, FormsModule, CurrencyPipe, DatePipe, NgbDropdownModule, IconDisplayComponent],
   templateUrl: './mensal.component.html',
   styleUrl: './mensal.component.scss',
   animations: [
@@ -120,7 +121,7 @@ export class MensalComponent implements OnInit {
   importedTransactions: any[] = [];
   isImporting = false;
 
-  constructor() {}
+  constructor() { }
   // ────────────────────────────────────────────────────────────
   // LIFECYCLE
   // ────────────────────────────────────────────────────────────
@@ -129,7 +130,7 @@ export class MensalComponent implements OnInit {
     const today = new Date();
     // Ajuste fuso local para evitar problemas de dias cortados
     this.todayDateStr = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-    
+
     this.selectedMonth = String(today.getMonth() + 1).padStart(2, '0');
     this.selectedYear = String(today.getFullYear());
 
@@ -190,7 +191,7 @@ export class MensalComponent implements OnInit {
       // Período padrão: 1º dia ao último dia do mês selecionado
       const lastDay = new Date(year, month, 0).getDate();
       const from = `${year}-${String(month).padStart(2, '0')}-01`;
-      const to   = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+      const to = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
       return { from, to };
     }
 
@@ -209,7 +210,7 @@ export class MensalComponent implements OnInit {
 
     return {
       from: `${fromY}-${fromM}-${fromD}`,
-      to:   `${toY}-${toM}-${toD}`
+      to: `${toY}-${toM}-${toD}`
     };
   }
 
@@ -246,7 +247,7 @@ export class MensalComponent implements OnInit {
     this.isLoadingTransacoes = true;
     this.errorMsg = null;
     const { from, to } = this.periodoDateRange;
-    
+
     forkJoin({
       saldo: this.financeService.getSaldoAcumulado(from),
       linhas: this.financeService.getTransacoes(from, to)
@@ -263,6 +264,22 @@ export class MensalComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  // --- HELPERS PARA TEMPLATE ---
+  getCategoriaById(id: number | null): Categoria | undefined {
+    if (!id) return undefined;
+    return this.categorias.find(c => c.id === id);
+  }
+
+  getMetodoById(id: number | null): MetodoPagamento | undefined {
+    if (!id) return undefined;
+    return this.metodos.find(m => m.id === id);
+  }
+
+  isEmoji(icon: string | null | undefined): boolean {
+    if (!icon) return true;
+    return !(icon.includes('/') || icon.endsWith('.svg') || icon.endsWith('.icon'));
   }
 
   // ────────────────────────────────────────────────────────────
@@ -289,7 +306,7 @@ export class MensalComponent implements OnInit {
     return this.recorrentes.filter(t => t.categoria === this.filterCategoriaFixos);
   }
 
-  get categoriasUnicasFixos(): {nome: string, icone: string}[] {
+  get categoriasUnicasFixos(): { nome: string, icone: string }[] {
     const catsMap = new Map<string, string>();
     this.recorrentes.forEach(t => {
       if (t.categoria) catsMap.set(t.categoria, t.categoria_icone || '🏷️');
@@ -331,7 +348,7 @@ export class MensalComponent implements OnInit {
     return this.transacoes.filter(t => t.direcao_name === 'receita');
   }
 
-  get categoriasUnicasGerais(): {nome: string, icone: string}[] {
+  get categoriasUnicasGerais(): { nome: string, icone: string }[] {
     const list = [...this.avulsas, ...this.receitas];
     const catsMap = new Map<string, string>();
     list.forEach(t => {
@@ -354,7 +371,7 @@ export class MensalComponent implements OnInit {
     // Aplica o filtro de texto
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
-      list = list.filter(t => 
+      list = list.filter(t =>
         t.descricao.toLowerCase().includes(term) ||
         t.categoria.toLowerCase().includes(term) ||
         t.metodoPagamento.toLowerCase().includes(term)
@@ -455,7 +472,7 @@ export class MensalComponent implements OnInit {
 
   get saldoCarteira(): number {
     const prev = this.saldoAnteriorMetodos['Carteira'] || 0;
-    
+
     const realizadasRec = this.receitas
       .filter(t => t.data <= this.todayDateStr && t.metodoPagamento === 'Carteira')
       .reduce((acc, t) => acc + Number(t.valor), 0);
@@ -531,7 +548,7 @@ export class MensalComponent implements OnInit {
   private parseTXT(contents: string): void {
     const lines = contents.split('\n');
     this.importedTransactions = [];
-    
+
     for (let line of lines) {
       if (!line.trim()) continue;
       const parts = line.split(';');
@@ -548,21 +565,21 @@ export class MensalComponent implements OnInit {
         let dataIso = '';
         const dateParts = dataOriginal.split('/');
         if (dateParts.length === 3) {
-           dataIso = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+          dataIso = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
         } else {
-           dataIso = new Date().toISOString().split('T')[0];
+          dataIso = new Date().toISOString().split('T')[0];
         }
 
         const direcao = valFloat >= 0 ? 'receita' : 'gasto';
         const valorReal = Math.abs(valFloat);
 
         this.importedTransactions.push({
-           data: dataIso,
-           descricao: desc,
-           valor: valorReal,
-           direcao: direcao,
-           categoria_id: null,
-           metodo_pagamento_id: null
+          data: dataIso,
+          descricao: desc,
+          valor: valorReal,
+          direcao: direcao,
+          categoria_id: null,
+          metodo_pagamento_id: null
         });
       }
     }
@@ -577,8 +594,8 @@ export class MensalComponent implements OnInit {
   saveImportedTransactions(): void {
     const invalidItem = this.importedTransactions.find(t => !t.categoria_id || !t.metodo_pagamento_id || !t.descricao);
     if (invalidItem) {
-       alert('Preencha a Categoria e Forma de Pagamento para todas as linhas antes de salvar!');
-       return;
+      alert('Preencha a Categoria e Forma de Pagamento para todas as linhas antes de salvar!');
+      return;
     }
 
     this.isImporting = true;
@@ -693,7 +710,7 @@ export class MensalComponent implements OnInit {
     if (this.isLoadingTransacoes) return;
 
     this.detailsModalTransactions = [];
-    
+
     switch (type) {
       case 'receitas':
         this.detailsModalTitle = 'Detalhes: Receitas do Mês';

@@ -7,6 +7,7 @@
 
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 
 import categoriasRouter      from './routes/categorias.routes.js';
 import metodosPagRouter      from './routes/metodos-pagamento.routes.js';
@@ -20,6 +21,9 @@ const app = express();
 // Middlewares globais
 app.use(express.json());
 app.use(cors());
+
+// Servir arquivos estáticos (ícones)
+app.use('/icons', express.static(path.join(process.cwd(), 'public', 'icons')));
 
 // Rotas
 app.use('/categorias',       categoriasRouter);

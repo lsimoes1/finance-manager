@@ -141,3 +141,34 @@ select.elegant-input {
     max-width: 420px;
   }
 }
+
+/* Upload de Ícones */
+.icon-upload-card {
+  .icon-upload-inner {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.04) 0%, rgba(5, 150, 105, 0.04) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    border-radius: 20px;
+    padding: 1.75rem 2rem;
+    height: 100%;
+  }
+
+  .icon-upload-icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(16, 185, 129, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+}
+
+.hover-opacity {
+  transition: opacity 0.2s;
+  &:hover { opacity: 0.7; }
+}
+
+.table-responsive::-webkit-scrollbar { width: 4px; }
+.table-responsive::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
