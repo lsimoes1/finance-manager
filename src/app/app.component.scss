@@ -1,7 +1,9 @@
 .navbar-modern {
   height: 70px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  position: sticky; top: 0; z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  position: fixed; top: 0; left: 0; width: 100%; z-index: 2000;
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
 
   .brand-icon {
     font-size: 1.5rem;
@@ -45,4 +47,8 @@
       }
     }
   }
+}
+
+main {
+  padding-top: 70px;
 }

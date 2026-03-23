@@ -183,6 +183,43 @@ Resposta: array de transações
 - Validar ranges e tipos: por exemplo `dia_vencimento` entre 1 e 31, `valor` maior que zero, `total_parcelas` inteiro positivo.
  - Considere usar transações de banco (`BEGIN/COMMIT`) ao criar recorrência + múltiplas parcelas para garantir atomicidade.
 
+| `GET` | `/saldo-acumulado` | Calcula saldo acumulado por método até uma data |
+| `GET` | `/configuracoes/icones` | Lista todos os ícones customizados (SVGs/PNGs) importados |
+| `POST` | `/configuracoes/icones/upload` | Faz o upload de um novo arquivo de ícone (`icon`) |
+| `DELETE` | `/configuracoes/icones/:filename` | Remove um arquivo de ícone pelo nome |
+
+---
+
+## 🎨 Gerenciamento de Ícones Customizados
+
+A API suporta o armazenamento e servimento de ícones customizados (logotipos de bancos, ícones de categorias específicas, etc.) que podem ser usados no lugar de emojis.
+
+### O que faz
+Os ícones são armazenados fisicamente na pasta `public/icons/` do servidor e servidos como ativos estáticos. Ao cadastrar uma categoria ou método de pagamento, o front-end envia o caminho da imagem ou o emoji como uma string no campo `icone`.
+
+### Rotas e Utilização
+
+1) **GET /configuracoes/icones**
+Retorna uma lista de objetos contendo o nome legível, o nome do arquivo e a URL absoluta para renderização.
+**Exemplo de Resposta:**
+```json
+[
+  {
+    "nome": "nubank",
+    "path": "http://localhost:3000/icons/nubank.svg",
+    "filename": "nubank.svg"
+  }
+]
+```
+
+2) **POST /configuracoes/icones/upload**
+Recebe um arquivo via `multipart/form-data` com a chave `icon`.
+**Formatos Suportados:** `.svg`, `.png`, `.ico`, `.icon`.
+**Resposta:** Retorna os dados do ícone recém-criado.
+
+3) **DELETE /configuracoes/icones/:filename**
+Remove o arquivo do disco.
+
 ---
 
 Arquivo fonte: `server.js` (em `back-end/`).

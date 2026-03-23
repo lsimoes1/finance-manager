@@ -669,7 +669,7 @@
 /* Custom Dropdown (Select replacement) */
 .custom-dropdown-select {
   width: 100%;
-  
+
   .dropdown-toggle {
     width: 100%;
     height: 50px;
@@ -701,7 +701,7 @@
     &[aria-expanded="true"] {
       border-color: var(--primary-color) !important;
       box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
-      
+
       .caret-icon {
         transform: rotate(180deg);
       }
@@ -713,8 +713,8 @@
     max-height: 250px;
     overflow-y: auto;
     border-radius: 16px !important;
-    border: 1px solid rgba(0,0,0,0.05) !important;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
     padding: 8px !important;
     margin-top: 8px !important;
     z-index: 1200;
@@ -730,7 +730,8 @@
       transition: background 0.2s;
       cursor: pointer;
 
-      &:hover, &.active {
+      &:hover,
+      &.active {
         background: rgba(99, 102, 241, 0.08) !important;
         color: var(--primary-dark) !important;
       }

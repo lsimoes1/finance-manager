@@ -462,13 +462,16 @@
               <div ngbDropdown class="custom-dropdown-select">
                 <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownRecCat">
                   <div class="d-flex align-items-center gap-2">
-                    <app-icon-display *ngIf="getCategoriaById(novaReceita.categoria_id)" [icon]="getCategoriaById(novaReceita.categoria_id)!.icone" size="1.4rem"></app-icon-display>
-                    <span class="text-truncate">{{ getCategoriaById(novaReceita.categoria_id)?.nome || 'Selecionar' }}</span>
+                    <app-icon-display *ngIf="getCategoriaById(novaReceita.categoria_id)"
+                      [icon]="getCategoriaById(novaReceita.categoria_id)!.icone" size="1.4rem"></app-icon-display>
+                    <span class="text-truncate">{{ getCategoriaById(novaReceita.categoria_id)?.nome || 'Selecionar'
+                      }}</span>
                   </div>
                   <span class="normal-emoji caret-icon">▼</span>
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropdownRecCat">
-                  <button type="button" ngbDropdownItem *ngFor="let c of categoriasReceita" (click)="novaReceita.categoria_id = c.id">
+                  <button type="button" ngbDropdownItem *ngFor="let c of categoriasReceita"
+                    (click)="novaReceita.categoria_id = c.id">
                     <app-icon-display [icon]="c.icone" size="1.5rem"></app-icon-display>
                     <span>{{ c.nome }}</span>
                   </button>
@@ -480,13 +483,17 @@
               <div ngbDropdown class="custom-dropdown-select">
                 <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownRecMet">
                   <div class="d-flex align-items-center gap-2">
-                    <app-icon-display *ngIf="getMetodoById(novaReceita.metodo_pagamento_id)" [icon]="getMetodoById(novaReceita.metodo_pagamento_id)!.icone" size="1.4rem" defaultIcon="🪙"></app-icon-display>
-                    <span class="text-truncate">{{ getMetodoById(novaReceita.metodo_pagamento_id)?.nome || 'Selecionar' }}</span>
+                    <app-icon-display *ngIf="getMetodoById(novaReceita.metodo_pagamento_id)"
+                      [icon]="getMetodoById(novaReceita.metodo_pagamento_id)!.icone" size="1.4rem"
+                      defaultIcon="🪙"></app-icon-display>
+                    <span class="text-truncate">{{ getMetodoById(novaReceita.metodo_pagamento_id)?.nome || 'Selecionar'
+                      }}</span>
                   </div>
                   <span class="normal-emoji caret-icon">▼</span>
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropdownRecMet">
-                  <button type="button" ngbDropdownItem *ngFor="let m of metodos" (click)="novaReceita.metodo_pagamento_id = m.id">
+                  <button type="button" ngbDropdownItem *ngFor="let m of metodos"
+                    (click)="novaReceita.metodo_pagamento_id = m.id">
                     <app-icon-display [icon]="m.icone" size="1.5rem" defaultIcon="🪙"></app-icon-display>
                     <span>{{ m.nome }}</span>
                   </button>
@@ -539,13 +546,16 @@
               <div ngbDropdown class="custom-dropdown-select">
                 <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownGasCat">
                   <div class="d-flex align-items-center gap-2">
-                    <app-icon-display *ngIf="getCategoriaById(novoGasto.categoria_id)" [icon]="getCategoriaById(novoGasto.categoria_id)!.icone" size="1.4rem"></app-icon-display>
-                    <span class="text-truncate">{{ getCategoriaById(novoGasto.categoria_id)?.nome || 'Selecionar' }}</span>
+                    <app-icon-display *ngIf="getCategoriaById(novoGasto.categoria_id)"
+                      [icon]="getCategoriaById(novoGasto.categoria_id)!.icone" size="1.4rem"></app-icon-display>
+                    <span class="text-truncate">{{ getCategoriaById(novoGasto.categoria_id)?.nome || 'Selecionar'
+                      }}</span>
                   </div>
                   <span class="normal-emoji caret-icon">▼</span>
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropdownGasCat">
-                  <button type="button" ngbDropdownItem *ngFor="let c of categoriasGasto" (click)="novoGasto.categoria_id = c.id">
+                  <button type="button" ngbDropdownItem *ngFor="let c of categoriasGasto"
+                    (click)="novoGasto.categoria_id = c.id">
                     <app-icon-display [icon]="c.icone" size="1.5rem"></app-icon-display>
                     <span>{{ c.nome }}</span>
                   </button>
@@ -557,13 +567,17 @@
               <div ngbDropdown class="custom-dropdown-select">
                 <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownGasMet">
                   <div class="d-flex align-items-center gap-2">
-                    <app-icon-display *ngIf="getMetodoById(novoGasto.metodo_pagamento_id)" [icon]="getMetodoById(novoGasto.metodo_pagamento_id)!.icone" size="1.4rem" defaultIcon="🪙"></app-icon-display>
-                    <span class="text-truncate">{{ getMetodoById(novoGasto.metodo_pagamento_id)?.nome || 'Selecionar' }}</span>
+                    <app-icon-display *ngIf="getMetodoById(novoGasto.metodo_pagamento_id)"
+                      [icon]="getMetodoById(novoGasto.metodo_pagamento_id)!.icone" size="1.4rem"
+                      defaultIcon="🪙"></app-icon-display>
+                    <span class="text-truncate">{{ getMetodoById(novoGasto.metodo_pagamento_id)?.nome || 'Selecionar'
+                      }}</span>
                   </div>
                   <span class="normal-emoji caret-icon">▼</span>
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropdownGasMet">
-                  <button type="button" ngbDropdownItem *ngFor="let m of metodos" (click)="novoGasto.metodo_pagamento_id = m.id">
+                  <button type="button" ngbDropdownItem *ngFor="let m of metodos"
+                    (click)="novoGasto.metodo_pagamento_id = m.id">
                     <app-icon-display [icon]="m.icone" size="1.5rem" defaultIcon="🪙"></app-icon-display>
                     <span>{{ m.nome }}</span>
                   </button>
@@ -645,13 +659,16 @@
               <div ngbDropdown class="custom-dropdown-select">
                 <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownEditCat">
                   <div class="d-flex align-items-center gap-2">
-                    <app-icon-display *ngIf="getCategoriaById(editPayload.categoria_id)" [icon]="getCategoriaById(editPayload.categoria_id)!.icone" size="1.4rem"></app-icon-display>
-                    <span class="text-truncate">{{ getCategoriaById(editPayload.categoria_id)?.nome || 'Selecionar' }}</span>
+                    <app-icon-display *ngIf="getCategoriaById(editPayload.categoria_id)"
+                      [icon]="getCategoriaById(editPayload.categoria_id)!.icone" size="1.4rem"></app-icon-display>
+                    <span class="text-truncate">{{ getCategoriaById(editPayload.categoria_id)?.nome || 'Selecionar'
+                      }}</span>
                   </div>
                   <span class="normal-emoji caret-icon">▼</span>
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropdownEditCat">
-                  <button type="button" ngbDropdownItem *ngFor="let c of categorias" (click)="editPayload.categoria_id = c.id">
+                  <button type="button" ngbDropdownItem *ngFor="let c of categorias"
+                    (click)="editPayload.categoria_id = c.id">
                     <app-icon-display [icon]="c.icone" size="1.5rem"></app-icon-display>
                     <span>{{ c.nome }}</span>
                   </button>
@@ -663,13 +680,17 @@
               <div ngbDropdown class="custom-dropdown-select">
                 <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownEditMet">
                   <div class="d-flex align-items-center gap-2">
-                    <app-icon-display *ngIf="getMetodoById(editPayload.metodo_pagamento_id)" [icon]="getMetodoById(editPayload.metodo_pagamento_id)!.icone" size="1.4rem" defaultIcon="🪙"></app-icon-display>
-                    <span class="text-truncate">{{ getMetodoById(editPayload.metodo_pagamento_id)?.nome || 'Selecionar' }}</span>
+                    <app-icon-display *ngIf="getMetodoById(editPayload.metodo_pagamento_id)"
+                      [icon]="getMetodoById(editPayload.metodo_pagamento_id)!.icone" size="1.4rem"
+                      defaultIcon="🪙"></app-icon-display>
+                    <span class="text-truncate">{{ getMetodoById(editPayload.metodo_pagamento_id)?.nome || 'Selecionar'
+                      }}</span>
                   </div>
                   <span class="normal-emoji caret-icon">▼</span>
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropdownEditMet">
-                  <button type="button" ngbDropdownItem *ngFor="let m of metodos" (click)="editPayload.metodo_pagamento_id = m.id">
+                  <button type="button" ngbDropdownItem *ngFor="let m of metodos"
+                    (click)="editPayload.metodo_pagamento_id = m.id">
                     <app-icon-display [icon]="m.icone" size="1.5rem" defaultIcon="🪙"></app-icon-display>
                     <span>{{ m.nome }}</span>
                   </button>
@@ -849,10 +870,12 @@
                     [ngClass]="{'border-danger': !item.categoria_id}">
                     <option [ngValue]="null" disabled selected>Selecionar...</option>
                     <ng-container *ngIf="item.direcao === 'gasto'">
-                      <option *ngFor="let c of categoriasGasto" [value]="c.id">{{ c.nome }} {{ isEmoji(c.icone) ? '('+c.icone+')' : '' }}</option>
+                      <option *ngFor="let c of categoriasGasto" [value]="c.id">{{ c.nome }} {{ isEmoji(c.icone) ?
+                        '('+c.icone+')' : '' }}</option>
                     </ng-container>
                     <ng-container *ngIf="item.direcao === 'receita'">
-                      <option *ngFor="let c of categoriasReceita" [value]="c.id">{{ c.nome }} {{ isEmoji(c.icone) ? '('+c.icone+')' : '' }}</option>
+                      <option *ngFor="let c of categoriasReceita" [value]="c.id">{{ c.nome }} {{ isEmoji(c.icone) ?
+                        '('+c.icone+')' : '' }}</option>
                     </ng-container>
                   </select>
                 </td>
@@ -860,7 +883,8 @@
                   <select class="form-select form-select-sm border shadow-none" [(ngModel)]="item.metodo_pagamento_id"
                     [ngClass]="{'border-danger': !item.metodo_pagamento_id}">
                     <option [ngValue]="null" disabled selected>Selecionar...</option>
-                    <option *ngFor="let m of metodos" [value]="m.id">{{ m.nome }} {{ isEmoji(m.icone) ? '('+m.icone+')' : '' }}</option>
+                    <option *ngFor="let m of metodos" [value]="m.id">{{ m.nome }} {{ isEmoji(m.icone) ? '('+m.icone+')'
+                      : '' }}</option>
                   </select>
                 </td>
               </tr>
@@ -946,7 +970,8 @@
                     {{ t.categoria }}
                   </span><br>
                   <span class="badge-soft">
-                    <app-icon-display [icon]="t.metodo_icone" size="1.2rem" customClass="me-1" defaultIcon="🪙"></app-icon-display>
+                    <app-icon-display [icon]="t.metodo_icone" size="1.2rem" customClass="me-1"
+                      defaultIcon="🪙"></app-icon-display>
                     {{ t.metodoPagamento }}
                   </span>
                 </td>
