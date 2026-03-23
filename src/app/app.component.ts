@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from './core/services/theme.service';
+import { LoadingService } from './core/services/loading.service';
 
 @Component({
   selector: 'app-root',
@@ -13,4 +14,5 @@ import { ThemeService } from './core/services/theme.service';
 export class AppComponent {
   title = 'finance-manager';
   themeService = inject(ThemeService);
+  loadingService = inject(LoadingService);
 }

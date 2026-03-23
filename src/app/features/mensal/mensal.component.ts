@@ -282,6 +282,24 @@ export class MensalComponent implements OnInit {
     return !(icon.includes('/') || icon.endsWith('.svg') || icon.endsWith('.icon'));
   }
 
+  getGastoTipoLabel(tipo: string): string {
+    switch (tipo) {
+      case 'avulsa': return 'Compra Única (Avulso)';
+      case 'fixa': return 'Conta Fixa mensal';
+      case 'parcelada': return 'Compra Parcelada';
+      default: return 'Selecionar';
+    }
+  }
+
+  getGastoTipoIcon(tipo: string): string {
+    switch (tipo) {
+      case 'avulsa': return '📌';
+      case 'fixa': return '🔁';
+      case 'parcelada': return '📅';
+      default: return '❓';
+    }
+  }
+
   // ────────────────────────────────────────────────────────────
   // GETTERS / FILTROS
   // ────────────────────────────────────────────────────────────
