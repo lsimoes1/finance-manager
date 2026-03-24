@@ -90,7 +90,7 @@ export class ConfiguracoesComponent implements OnInit {
 
   novoMetodoNome = '';
   novoMetodoIcone = '🪙';
-  novoMetodoTipo = 'padrao';
+  novoMetodoTipo = 'carteira';
 
   editCategoria: Categoria | null = null;
   editMetodo: MetodoPagamento | null = null;
@@ -409,7 +409,7 @@ export class ConfiguracoesComponent implements OnInit {
       next: () => {
         this.novoMetodoNome = '';
         this.novoMetodoIcone = '🪙';
-        this.novoMetodoTipo = 'padrao';
+        this.novoMetodoTipo = 'carteira';
         this.showSuccess('Método adicionado com sucesso!');
         this.loadData();
       },

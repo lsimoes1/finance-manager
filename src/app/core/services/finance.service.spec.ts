@@ -117,4 +117,27 @@ describe('FinanceService', () => {
     expect(req.request.method).toBe('PUT');
     req.flush({ ok: true });
   });
+
+  it('deve converter decimais do Postgres (strings) para numbers', () => {
+    const mockRawData = [
+      {
+        id: 1,
+        descricao: 'Teste Postgres',
+        valor: '123.45', // String do Postgres
+        data: '2026-03-23',
+        categoria_id: 1,
+        metodo_pagamento_id: 1,
+        tipo: 'avulsa',
+        direcao: 'gasto'
+      }
+    ];
+
+    service.getTransacoes().subscribe(transacoes => {
+      expect(typeof transacoes[0].valor).toBe('number');
+      expect(transacoes[0].valor).toBe(123.45);
+    });
+
+    const req = httpMock.expectOne('http://localhost:3000/transacoes');
+    req.flush(mockRawData);
+  });
 });

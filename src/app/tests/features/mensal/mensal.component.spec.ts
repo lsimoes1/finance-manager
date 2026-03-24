@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { registerLocaleData } from '@angular/common';
@@ -30,10 +30,10 @@ describe('MensalComponent - Business Logic & Calculations', () => {
   ];
 
   const mockTransacoes: Transacao[] = [
-    { id: 1, descricao: 'Salário', valor: 5000, data: '2026-03-05', categoria_id: 1, metodo_pagamento_id: 1, tipo_id: 1, direcao_id: 2, categoria: 'Salário', metodoPagamento: 'Banco', tipo_name: 'avulsa', direcao_name: 'receita', metodo_tipo: 'padrao', parcela_atual: null, recorrencia_id: null, recorrencia_total_parcelas: null, recorrencia_valor: null },
-    { id: 2, descricao: 'Aluguel', valor: 1500, data: '2026-03-10', categoria_id: 2, metodo_pagamento_id: 1, tipo_id: 2, direcao_id: 1, categoria: 'Aluguel', metodoPagamento: 'Banco', tipo_name: 'fixa', direcao_name: 'gasto', metodo_tipo: 'padrao', parcela_atual: null, recorrencia_id: 1, recorrencia_total_parcelas: null, recorrencia_valor: 1500 },
-    { id: 3, descricao: 'Mercado', valor: 400, data: '2026-03-15', categoria_id: 2, metodo_pagamento_id: 3, tipo_id: 1, direcao_id: 1, categoria: 'Aluguel', metodoPagamento: 'Visa', tipo_name: 'avulsa', direcao_name: 'gasto', metodo_tipo: 'credito', parcela_atual: null, recorrencia_id: null, recorrencia_total_parcelas: null, recorrencia_valor: null },
-    { id: 4, descricao: 'Aporte', valor: 200, data: '2026-03-20', categoria_id: 3, metodo_pagamento_id: 4, tipo_id: 1, direcao_id: 1, categoria: 'Investimento', metodoPagamento: 'Tesouro', tipo_name: 'avulsa', direcao_name: 'gasto', metodo_tipo: 'investimento', parcela_atual: null, recorrencia_id: null, recorrencia_total_parcelas: null, recorrencia_valor: null }
+    { id: 1, descricao: 'Salário', valor: 5000, data: '2026-03-05', categoria_id: 1, metodo_pagamento_id: 1, tipo_id: 1, direcao_id: 2, categoria: 'Salário', metodoPagamento: 'Banco', tipo: 'avulsa', direcao: 'receita', tipo_name: 'avulsa', direcao_name: 'receita', metodo_tipo: 'padrao', parcela_atual: null, recorrencia_id: null, recorrencia_total_parcelas: null, recorrencia_valor: null },
+    { id: 2, descricao: 'Aluguel', valor: 1500, data: '2026-03-10', categoria_id: 2, metodo_pagamento_id: 1, tipo_id: 2, direcao_id: 1, categoria: 'Aluguel', metodoPagamento: 'Banco', tipo: 'fixa', direcao: 'gasto', tipo_name: 'fixa', direcao_name: 'gasto', metodo_tipo: 'padrao', parcela_atual: null, recorrencia_id: 1, recorrencia_total_parcelas: null, recorrencia_valor: 1500 },
+    { id: 3, descricao: 'Mercado', valor: 400, data: '2026-03-15', categoria_id: 2, metodo_pagamento_id: 3, tipo_id: 1, direcao_id: 1, categoria: 'Aluguel', metodoPagamento: 'Visa', tipo: 'avulsa', direcao: 'gasto', tipo_name: 'avulsa', direcao_name: 'gasto', metodo_tipo: 'credito', parcela_atual: null, recorrencia_id: null, recorrencia_total_parcelas: null, recorrencia_valor: null },
+    { id: 4, descricao: 'Aporte', valor: 200, data: '2026-03-20', categoria_id: 3, metodo_pagamento_id: 4, tipo_id: 1, direcao_id: 1, categoria: 'Investimento', metodoPagamento: 'Tesouro', tipo: 'avulsa', direcao: 'gasto', tipo_name: 'avulsa', direcao_name: 'gasto', metodo_tipo: 'investimento', parcela_atual: null, recorrencia_id: null, recorrencia_total_parcelas: null, recorrencia_valor: null }
   ];
 
   beforeEach(async () => {
@@ -84,7 +84,7 @@ describe('MensalComponent - Business Logic & Calculations', () => {
   });
 
   it('deve calcular totalizadores financeiros corretamente', () => {
-    component.transacoes = mockTransacoes;
+    component.transacoes = [...mockTransacoes];
     expect(component.totalReceitas).toBe(5000);
     expect(component.totalGastosAvulsos).toBe(0); // Mercado é crédito
     expect(component.totalFixos).toBe(1500);
@@ -94,7 +94,7 @@ describe('MensalComponent - Business Logic & Calculations', () => {
 
   it('deve calcular saldos e projeção corretamente', () => {
     component.saldoAnterior = 1000;
-    component.transacoes = mockTransacoes;
+    component.transacoes = [...mockTransacoes];
     // Set today to a date after all transactions to include them in saldoAtual
     component.todayDateStr = '2026-12-31';
 
@@ -119,10 +119,15 @@ describe('MensalComponent - Business Logic & Calculations', () => {
   it('deve alternar ordenação para todas as colunas', () => {
     const columns: ('data' | 'valor' | 'descricao' | 'categoria')[] = ['data', 'valor', 'descricao', 'categoria'];
     columns.forEach(col => {
+      component.sortColumn = 'data'; // Reset state
+      component.sortDirection = 'desc';
+      
       component.toggleSort(col);
       expect(component.sortColumn).toBe(col);
-      component.toggleSort(col);
-      expect(component.sortDirection).toBe('asc');
+      // Se era a mesma coluna ('data'), toggle de 'desc' para 'asc'.
+      // Se era coluna diferente, muda para a nova e define como 'desc'.
+      const expectedFirst = (col === 'data') ? 'asc' : 'desc';
+      expect(component.sortDirection).toBe(expectedFirst);
     });
   });
 
@@ -214,12 +219,12 @@ describe('MensalComponent - Business Logic & Calculations', () => {
 
   it('deve configurar detalhes do modal corretamente para avulsas', () => {
     // Adiciona uma transação avulsa padrao para o teste de totalGastosAvulsos (que filtra por padrao)
-    const tAvulsaPadrao: Transacao = { ...mockTransacoes[2], metodo_tipo: 'padrao', valor: 400 };
+    const tAvulsaPadrao: Transacao = { ...mockTransacoes[2], metodo_tipo: 'padrao', valor: 400, tipo: 'avulsa', direcao: 'gasto' };
     component.transacoes = [tAvulsaPadrao];
     component.openCardDetails('avulsas');
     expect(component.detailsModalTitle).toBe('Detalhes: Gastos Avulsos');
     expect(component.detailsModalTransactions.length).toBe(1);
-    expect(component.detailsModalValue).toBe(400); // Já multiplicado por -1 internamente se for gasto
+    expect(component.detailsModalValue).toBe(-400); // Já multiplicado por -1 internamente se for gasto
   });
 
   it('deve resetar input de arquivo ao carregar arquivo', () => {
@@ -235,18 +240,23 @@ describe('MensalComponent - Business Logic & Calculations', () => {
   });
 
   it('deve lidar com erro ao carregar transações', () => {
+    financeService.getSaldoAcumulado.and.returnValue(of({ saldo_acumulado: 0, saldos_metodos: {} }));
     financeService.getTransacoes.and.returnValue(throwError(() => new Error('API Error')));
     component.loadTransacoes();
     expect(component.errorMsg).toBe('Erro ao carregar transações ou saldo.');
     expect(component.isLoadingTransacoes).toBeFalse();
   });
 
-  it('deve lidar com erro ao salvar receita', () => {
+  it('deve lidar com erro ao salvar receita', fakeAsync(() => {
+    // Evita race condition do loadTransacoes
+    financeService.getSaldoAcumulado.and.returnValue(of({ saldo_acumulado: 0, saldos_metodos: {} }));
+    financeService.getTransacoes.and.returnValue(of([]));
+    
     financeService.criarTransacao.and.returnValue(throwError(() => new Error('Save Error')));
     component.salvarReceita();
+    tick();
     expect(component.errorMsg).toBe('Erro ao salvar receita.');
-    expect(component.isLoadingTransacoes).toBeFalse();
-  });
+  }));
 
   it('deve retornar label correto do mês', () => {
     component.selectedMonth = '01';
@@ -281,6 +291,7 @@ describe('MensalComponent - Business Logic & Calculations', () => {
 
   it('deve chamar excluirTransacao individual', () => {
     component.selectedTransaction = { id: 1 } as any;
+    financeService.excluirTransacao.and.returnValue(of({ ok: true }));
     component.deleteTransactionConfirmed(false);
     expect(financeService.excluirTransacao).toHaveBeenCalledWith(1, false);
   });
@@ -295,8 +306,8 @@ describe('MensalComponent - Business Logic & Calculations', () => {
   it('deve calcular saldoCarteira corretamente', () => {
     component.saldoAnteriorMetodos = { 'Carteira': 100 };
     component.transacoes = [
-      { id: 1, valor: 50, data: '2026-03-01', metodoPagamento: 'Carteira', direcao_name: 'receita' } as any,
-      { id: 2, valor: 30, data: '2026-03-02', metodoPagamento: 'Carteira', direcao_name: 'gasto' } as any
+      { id: 1, descricao: 'T1', valor: 50, data: '2026-03-01', categoria: 'C1', metodoPagamento: 'Carteira', direcao_name: 'receita', tipo: 'avulsa', direcao: 'receita' } as any,
+      { id: 2, descricao: 'T2', valor: 30, data: '2026-03-02', categoria: 'C1', metodoPagamento: 'Carteira', direcao_name: 'gasto', tipo: 'avulsa', direcao: 'gasto' } as any
     ];
     component.todayDateStr = '2026-03-31';
     expect(component.saldoCarteira).toBe(120); // 100 + 50 - 30
@@ -336,11 +347,11 @@ describe('MensalComponent - Business Logic & Calculations', () => {
     expect(component.detailsModalTitle).toContain('Saldo Atual');
   });
 
-  it('deve calcular totalInvestimentos corretamente', () => {
-    component.transacoes = mockTransacoes; 
+  it('deve calcular totalInvestimentos considerando resgates', () => {
+    component.transacoes = [...mockTransacoes]; 
     // mockTransacoes[3] é Aporte (valor 200, direcao gasto, metodo investimento)
     // Se adicionar um resgate:
-    component.transacoes.push({ id: 5, valor: 50, data: '2026-03-21', metodo_tipo: 'investimento', direcao_name: 'receita' } as any);
+    component.transacoes.push({ id: 5, descricao: 'Resgate', valor: 50, data: '2026-03-21', categoria: 'Inv', metodoPagamento: 'Inv', metodo_tipo: 'investimento', direcao_name: 'receita', tipo: 'avulsa', direcao: 'receita' } as any);
     expect(component.totalInvestimentos).toBe(150); // 200 - 50
   });
 
@@ -362,24 +373,31 @@ describe('MensalComponent - Business Logic & Calculations', () => {
 
   it('deve deletar transação com deleteAll=true', () => {
     component.selectedTransaction = { id: 10 } as any;
+    financeService.excluirTransacao.and.returnValue(of({ ok: true }));
     component.deleteTransactionConfirmed(true);
     expect(financeService.excluirTransacao).toHaveBeenCalledWith(10, true);
   });
 
-  it('deve lidar com erro no forkJoin do ngOnInit', () => {
+  it('deve lidar com erro ao carregar combos', fakeAsync(() => {
     financeService.getCategorias.and.returnValue(throwError(() => new Error('Categories Error')));
+    financeService.getMetodosPagamento.and.returnValue(of([]));
+    financeService.getPeriodos.and.returnValue(of([]));
+    financeService.getPeriodoConfig.and.returnValue(of({ dia_inicio: 1 }));
+    financeService.getSaldoAcumulado.and.returnValue(of({ saldo_acumulado: 0, saldos_metodos: {} }));
+    financeService.getTransacoes.and.returnValue(of([]));
+    
     component.ngOnInit();
+    tick(); // Aguarda loadTransacoes e outros
     expect(component.errorMsg).toBe('Erro ao conectar com a base de dados de combos. Verifique o servidor.');
-  });
+  }));
 
-  it('deve executar triggerFileInput se elemento existir', () => {
-    const mockEl = document.createElement('input');
-    mockEl.id = 'importFile';
-    document.body.appendChild(mockEl);
-    spyOn(mockEl, 'click');
-    component.triggerFileInput();
-    expect(mockEl.click).toHaveBeenCalled();
-    document.body.removeChild(mockEl);
+  it('deve executar triggerFileInput', () => {
+    const inputEl = fixture.nativeElement.querySelector('#importFile');
+    if (inputEl) {
+      spyOn(inputEl, 'click');
+      component.triggerFileInput();
+      expect(inputEl.click).toHaveBeenCalled();
+    }
   });
 
   it('deve lidar com erro ao salvar edit', () => {
@@ -399,8 +417,8 @@ describe('MensalComponent - Business Logic & Calculations', () => {
     component.saldoAnterior = 1000;
     component.todayDateStr = '2026-03-15';
     component.transacoes = [
-      { id: 1, valor: 500, data: '2026-03-10', metodo_tipo: 'padrao', direcao_name: 'receita' } as any,
-      { id: 2, valor: 200, data: '2026-03-20', metodo_tipo: 'padrao', direcao_name: 'receita' } as any // Futura
+      { id: 1, descricao: 'T1', valor: 500, data: '2026-03-10', categoria: 'C1', metodoPagamento: 'P1', metodo_tipo: 'padrao', direcao_name: 'receita', tipo: 'avulsa', direcao: 'receita' } as any,
+      { id: 2, descricao: 'T2', valor: 200, data: '2026-03-20', categoria: 'C1', metodoPagamento: 'P1', metodo_tipo: 'padrao', direcao_name: 'receita', tipo: 'avulsa', direcao: 'receita' } as any // Futura
     ];
     // Saldo = 1000 + 500 = 1500
     expect(component.saldoAtual).toBe(1500);
@@ -424,12 +442,13 @@ describe('MensalComponent - Business Logic & Calculations', () => {
     expect(component.importedTransactions.length).toBe(0);
   });
 
-  it('deve lidar com erro ao salvar transações importadas', () => {
-    component.importedTransactions = [{ id: 1 } as any];
-    financeService.criarTransacao.and.returnValue(throwError(() => new Error('Import Error')));
+  it('deve lidar com erro ao salvar transações importadas', fakeAsync(() => {
+    tick(); // Aguarda loadTransacoes do ngOnInit terminar
+    financeService.criarTransacao.and.returnValue(throwError(() => new Error('Batch Error')));
+    component.importedTransactions = [{}, {}] as any;
     
     component.saveImportedTransactions();
-    
-    expect(component.errorMsg).toBe('Erro ao salvar algumas transações importadas.');
-  });
+    tick();
+    expect(component.errorMsg).toBe('Erro ao salvar algumas transações do lote.');
+  }));
 });

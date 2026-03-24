@@ -276,9 +276,9 @@
                 <small class="d-block">{{ t.data | date:'MM/yyyy' }}</small>
               </td>
               <td class="text-center">
-                <span class="pill" [class.pill-info]="t.tipo_name === 'fixa'"
-                  [class.pill-warning]="t.tipo_name === 'parcelada'">
-                  {{ t.tipo_name }}
+                <span class="pill" [class.pill-info]="t.tipo === 'fixa'"
+                  [class.pill-warning]="t.tipo === 'parcelada'">
+                  {{ t.tipo }}
                 </span>
               </td>
               <td class="description-cell fw-semibold text-foreground">
@@ -388,28 +388,28 @@
                 <small class="d-block text-secondary">{{ t.data | date:'MMM yyyy' }}</small>
               </td>
               <td class="text-center">
-                <span class="pill fw-bold" [ngClass]="t.direcao_name === 'gasto' ? 'pill-danger' : 'pill-success'">
-                  {{ t.direcao_name === 'gasto' ? 'Gasto' : 'Receita' }}
+                <span class="pill fw-bold" [ngClass]="t.direcao === 'gasto' ? 'pill-danger' : 'pill-success'">
+                  {{ t.direcao === 'gasto' ? 'Gasto' : 'Receita' }}
                 </span>
               </td>
               <td class="description-cell fw-bold text-foreground">{{ t.descricao }}</td>
               <td class="meta-cell">
-                <span class="badge-soft" [ngClass]="{'badge-soft-success': t.direcao_name === 'receita'}">
+                <span class="badge-soft" [ngClass]="{'badge-soft-success': t.direcao === 'receita'}">
                   <app-icon-display [icon]="t.categoria_icone" size="1.2rem" customClass="me-1"></app-icon-display> {{
                   t.categoria }}
                 </span>
-                <span class="badge-soft" [ngClass]="{'badge-soft-success': t.direcao_name === 'receita'}">
+                <span class="badge-soft" [ngClass]="{'badge-soft-success': t.direcao === 'receita'}">
                   <app-icon-display [icon]="t.metodo_icone" size="1.2rem" customClass="me-1"
                     defaultIcon="🪙"></app-icon-display> {{ t.metodoPagamento }}
                 </span>
               </td>
               <td class="text-end fw-bolder text-nowrap val-cell fs-5"
-                [ngClass]="t.direcao_name === 'gasto' ? 'text-danger' : 'text-success'">
-                {{ t.direcao_name === 'gasto' ? '-' : '+' }} {{ t.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                [ngClass]="t.direcao === 'gasto' ? 'text-danger' : 'text-success'">
+                {{ t.direcao === 'gasto' ? '-' : '+' }} {{ t.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
               </td>
               <td class="text-center">
                 <button class="btn-edit-modern"
-                  [ngStyle]="t.direcao_name === 'receita' ? {'color': 'var(--success-color)'} : {}"
+                  [ngStyle]="t.direcao === 'receita' ? {'color': 'var(--success-color)'} : {}"
                   (click)="openEditModal(t)" title="Editar transação">Editar</button>
               </td>
             </tr>
@@ -779,7 +779,7 @@
       </p>
 
       <!-- Transação Fixa (recorrência sem parcelas contadas) -->
-      <ng-container *ngIf="selectedTransaction && selectedTransaction.tipo_name === 'fixa'">
+      <ng-container *ngIf="selectedTransaction && selectedTransaction.tipo === 'fixa'">
         <div class="alert alert-warning text-start small mb-3 p-3 rounded-3">
           <strong>⚠️ Atenção — Lançamento Fixo Mensal</strong><br>
           Este é um gasto <strong>fixo mensal</strong> que se repete todos os meses.<br><br>
@@ -804,7 +804,7 @@
       </ng-container>
 
       <!-- Transação Parcelada -->
-      <ng-container *ngIf="selectedTransaction && selectedTransaction.tipo_name === 'parcelada'">
+      <ng-container *ngIf="selectedTransaction && selectedTransaction.tipo === 'parcelada'">
         <div class="alert alert-warning text-start small mb-3 p-3 rounded-3">
           <strong>⚠️ Atenção — Lançamento Parcelado</strong><br>
           Este é um gasto <strong>parcelado</strong> — Parcela {{ selectedTransaction.parcela_atual }} de {{
@@ -828,7 +828,7 @@
       </ng-container>
 
       <!-- Transação Avulsa -->
-      <ng-container *ngIf="selectedTransaction && selectedTransaction.tipo_name === 'avulsa'">
+      <ng-container *ngIf="selectedTransaction && selectedTransaction.tipo === 'avulsa'">
         <p class="text-muted small mb-3">Esta ação é irreversível.</p>
         <div class="d-flex flex-column gap-2">
           <button type="button" class="btn btn-danger rounded-pill fw-semibold py-2"
@@ -956,7 +956,7 @@
           class="p-3 mx-4 my-3 bg-surface rounded-4 shadow-sm border d-flex justify-content-between align-items-center">
           <span class="text-muted fw-bold d-flex align-items-center gap-2 small">
             <span class="normal-emoji fs-5">🧮</span>
-            <span>Impacto Líquido neste grupo:</span>
+            <span>{{ detailsModalLabel }}:</span>
           </span>
           <h4 class="m-0 fw-black"
             [ngClass]="detailsModalValue > 0 ? 'text-success' : (detailsModalValue < 0 ? 'text-danger' : 'text-foreground')">
@@ -985,12 +985,12 @@
                 </td>
                 <td>
                   <span class="fw-bolder text-foreground">{{ t.descricao }}</span>
-                  <div class="mt-1 d-flex gap-1" *ngIf="t.tipo_name !== 'avulsa'">
-                    <span *ngIf="t.tipo_name === 'parcelada'"
+                  <div class="mt-1 d-flex gap-1" *ngIf="t.tipo !== 'avulsa'">
+                    <span *ngIf="t.tipo === 'parcelada'"
                       class="badge border border-warning text-warning-dark rounded-pill fw-bold"
                       style="font-size:0.65rem">Parcela {{ t.parcela_atual }} / {{ t.recorrencia_total_parcelas
                       }}</span>
-                    <span *ngIf="t.tipo_name === 'fixa'" class="badge border border-info text-info rounded-pill fw-bold"
+                    <span *ngIf="t.tipo === 'fixa'" class="badge border border-info text-info rounded-pill fw-bold"
                       style="font-size:0.65rem">Fixo</span>
                   </div>
                 </td>
@@ -1006,8 +1006,8 @@
                   </span>
                 </td>
                 <td class="text-end text-nowrap fs-5 fw-black"
-                  [ngClass]="t.direcao_name === 'gasto' ? 'text-danger' : 'text-success'">
-                  {{ t.direcao_name === 'gasto' ? '-' : '+' }} {{ t.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                  [ngClass]="t.direcao === 'gasto' ? 'text-danger' : 'text-success'">
+                  {{ t.direcao === 'gasto' ? '-' : '+' }} {{ t.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                 </td>
                 <td class="text-center pe-4">
                   <button class="btn-edit-modern" title="Editar transação">Editar</button>

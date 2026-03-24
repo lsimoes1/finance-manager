@@ -10,19 +10,28 @@ import db from '../db/database.js';
 const router = Router();
 
 // GET /categorias?tipo_categoria=1
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { tipo_categoria } = req.query;
-    let sql = 'SELECT * FROM categorias';
+    let sql = 'SELECT id, nome, direcao, icone FROM categorias';
     const params = [];
 
     if (tipo_categoria) {
-      sql += ' WHERE tipo_categoria = ?';
-      params.push(tipo_categoria);
+      // Mapeia 1 -> receita, 2 -> gasto (compatibilidade com front antigo)
+      const direcao = Number(tipo_categoria) === 1 ? 'receita' : 'gasto';
+      sql += ' WHERE direcao = $1';
+      params.push(direcao);
     }
     sql += ' ORDER BY nome ASC';
 
-    const rows = db.prepare(sql).all(...params);
+    const result = await db.query(sql, params);
+    
+    // Converte de volta para tipo_categoria numérico para o frontend não quebrar agora
+    const rows = result.rows.map(r => ({
+      ...r,
+      tipo_categoria: r.direcao === 'receita' ? 1 : 2
+    }));
+
     res.json(rows);
   } catch (err) {
     res.status(500).json({ ok: false, error: String(err) });
@@ -30,28 +39,35 @@ router.get('/', (req, res) => {
 });
 
 // POST /categorias
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { nome, tipo_categoria, icone } = req.body;
     if (!nome) return res.status(400).json({ ok: false, error: 'nome is required' });
 
-    const tipo = tipo_categoria || 2;
-    const result = db.prepare('INSERT INTO categorias (nome, tipo_categoria, icone) VALUES (?, ?, ?)').run(nome, tipo, icone || '🏷️');
-    res.status(201).json({ ok: true, id: result.lastInsertRowid });
+    // Mapeia entrada numérica para Enum
+    const direcao = Number(tipo_categoria) === 1 ? 'receita' : 'gasto';
+    
+    const sql = 'INSERT INTO categorias (nome, direcao, icone) VALUES ($1, $2, $3) RETURNING id';
+    const result = await db.query(sql, [nome, direcao, icone || '🏷️']);
+    
+    res.status(201).json({ ok: true, id: result.rows[0].id });
   } catch (err) {
     res.status(500).json({ ok: false, error: String(err) });
   }
 });
 
 // PUT /categorias/:id
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const { nome, tipo_categoria, icone } = req.body;
     const { id } = req.params;
     if (!nome) return res.status(400).json({ ok: false, error: 'nome is required' });
 
-    const tipo = tipo_categoria || 2;
-    db.prepare('UPDATE categorias SET nome = ?, tipo_categoria = ?, icone = ? WHERE id = ?').run(nome, tipo, icone || '🏷️', id);
+    const direcao = Number(tipo_categoria) === 1 ? 'receita' : 'gasto';
+    
+    const sql = 'UPDATE categorias SET nome = $1, direcao = $2, icone = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4';
+    await db.query(sql, [nome, direcao, icone || '🏷️', id]);
+    
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, error: String(err) });
@@ -59,10 +75,10 @@ router.put('/:id', (req, res) => {
 });
 
 // DELETE /categorias/:id
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    db.prepare('DELETE FROM categorias WHERE id = ?').run(id);
+    await db.query('DELETE FROM categorias WHERE id = $1', [id]);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, error: String(err) });

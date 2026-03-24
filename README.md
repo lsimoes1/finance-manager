@@ -19,15 +19,17 @@ O objetivo do sistema é permitir o gerenciamento de:
 
 ## 🏛️ Arquitetura do Sistema
 
-O Finance Manager segue uma arquitetura **cliente-servidor** clássica de três camadas: o front-end Angular se comunica exclusivamente com a API REST via HTTP, que por sua vez é a única responsável por ler e escrever no banco de dados SQLite local.
+O Finance Manager segue uma arquitetura **cliente-servidor** clássica de três camadas: o front-end Angular se comunica eletronicamente com a API REST via HTTP. A API é a única responsável pela persistência no banco de dados **PostgreSQL**.
 
 ```mermaid
 flowchart LR
     subgraph Client["🌐 Front-end (Angular 19)"]
         direction TB
         A1["finance.service.ts\n(HttpClient)"]
-        A2["Dashboard / Mensal\nInvestimentos / Config"]
-        A2 -->|"usa"| A1
+        A2["TypeMapper\n(Utility Layer)"]
+        A3["Dashboard / Mensal\nInvestimentos / Config"]
+        A3 -->|"usa"| A2
+        A2 -->|"mapeia"| A1
     end
 
     subgraph API["⚙️ Back-end (Node.js + Express)"]
@@ -35,22 +37,22 @@ flowchart LR
         B1["server.js\n(bootstrap)"]
         B2["src/app.js\n(middlewares + rotas)"]
         B3["routes/*.routes.js\n(categorias, transações...)"]
-        B4["src/db/migrations.js\n(schema + seeds + alters)"]
+        B4["src/db/init.sql\n(schema + enums)"]
         B1 --> B2
         B2 --> B3
         B1 --> B4
     end
 
     subgraph DB["🗄️ Banco de Dados"]
-        C1["SQLite\n(back-end/data/financeiro.db)"]
+        C1["PostgreSQL\n(Docker / RDS)"]
     end
 
     A1 -- "HTTP REST :3000" --> B2
-    B3 -- "better-sqlite3\n(síncrono)" --> C1
-    B4 -. "cria/migra tabelas\nna inicialização" .-> C1
+    B3 -- "pg Driver\n(assíncrono)" --> C1
+    B4 -. "cria tabelas e enums\nna inicialização" .-> C1
 ```
 
-> **Nota:** O front-end nunca acessa o banco diretamente. Toda a inteligência de persistência e regras de negócio (criação de parcelas, geração de recorrências fixas, etc.) vive exclusivamente na API.
+> **Nota:** O sistema foi migrado de SQLite para PostgreSQL para suportar maior escalabilidade, tipos de dados precisos (DECIMAL) e Enums nativos. O Frontend utiliza um `TypeMapper` para garantir que os dados decimais sejam tratados como números precisos em toda a interface.
 
 ---
 
@@ -60,35 +62,41 @@ O projeto utiliza tecnologias modernas de desenvolvimento web e é completamente
 
 ### 🌐 Front-end:
 - **Framework:** Angular 19 (Standalone Components)
-- **Estilização:** SCSS / CSS Vanilla com Bootstrap 5.3 (para grid e layouts utilitários básicos) + Animate.css para animações fluidas.
-- **Estruturação:** Padrão LIFT (Locate, Identify, Flattest, Try to be DRY).
+- **Camada de Dados:** `TypeMapper` para normalização de strings PostgreSQL para Number.
+- **Estilização:** SCSS / CSS Vanilla com Bootstrap 5.3 + Animate.css.
+- **Estruturação:** Padrão LIFT e Tipagem Estrita (Enums de String).
 - **Servidor (Docker):** Nginx (Alpine).
 
 ### ⚙️ Back-end:
 - **Plataforma:** Node.js v20+ / Express.js
-- **Banco de Dados:** SQLite (com abstração _better-sqlite3_ para super performance de consultas síncronas/rápidas).
-- **Arquitetura API:** RESTful com rotas separadas por domínio.
+- **Driver de Banco:** `pg` (PostgreSQL Client) com suporte a Connection Pool.
+- **Banco de Dados:** PostgreSQL (Tabelas normalizadas, Enums e suporte a JSONB).
+- **Arquitetura API:** RESTful assíncrona.
 
 ### 🐳 DevOps & Deploy:
 - **Containerização:** Docker & Docker Compose (`docker-compose.yml`).
+- **Banco de Dados:** Imagem oficial `postgres:15-alpine`.
 
 ---
 
 ## 🚀 Como Executar
 
-O projeto já está estruturado via Docker Compose, unificando tanto a aplicação Angular quanto o servidor Node.js e o banco SQLite de maneira automática.
+O projeto é completamente orquestrado via **Docker Compose**, simplificando a inicialização do Front-end, Back-end e o Banco de Dados PostgreSQL.
 
 ### 1️⃣ Pré-requisitos
 - Instalado em sua máquina: [Docker](https://docs.docker.com/get-docker/) e [Docker Compose](https://docs.docker.com/compose/install/).
-- Porta `80` (Angular/Nginx) e `3000` (Node.js API) disponíveis na máquina host.
+- Portas `80` (Web) e `3000` (API) disponíveis.
 
-### 2️⃣ Rodando via Docker
+### 2️⃣ Rodando via Docker (Recomendado)
 Basta abrir no terminal a pasta raiz do projeto e digitar:
 
 ```bash
 docker compose up -d --build
 ```
-> O comando `--build` garante que as imagens fiquem atualizadas durante as reconstruções. Para acompanhar os logs, use `docker compose logs -f`.
+> O Docker Compose irá subir automaticamente:
+> 1. Uma instância do **PostgreSQL 15**.
+> 2. O **Back-end** (Node.js) que executará as migrations iniciais.
+> 3. O **Front-end** (Angular) servido pelo Nginx.
 
 ### 🎉 Acessando:
 - Aplicação Front-end: **[http://localhost](http://localhost)**
@@ -97,14 +105,18 @@ docker compose up -d --build
 ---
 
 ### Executando Manualmente (Modo Desenvolvimento)
-Se preferir rodar sem o Docker:
-1. **Back-end:**
+Se preferir rodar localmente (necessita PostgreSQL externo):
+1. **Configuração do Banco:**
+   - Certifique-se de ter um PostgreSQL rodando e crie um banco chamado `finance_manager`.
+   - Configure as variáveis no arquivo `back-end/.env`.
+
+2. **Back-end:**
    ```bash
    cd back-end
    npm install
-   node server.js
+   npm start
    ```
-2. **Front-end:**
+3. **Front-end:**
    ```bash
    npm install
    npm start
@@ -117,87 +129,59 @@ Acesse `http://localhost:4200` para a versão de desenvolvimento do front.
 
 ### O que é
 
-O back-end é uma **API REST** construída sobre **Node.js + Express.js** que serve como a única ponte de comunicação entre o front-end Angular e o banco de dados SQLite. Ela é responsável por toda a lógica de persistência: cadastro de categorias, métodos de pagamento, criação de transações (avulsas, fixas ou parceladas), controle de investimentos e configurações do usuário.
+O back-end é uma **API REST** construída sobre **Node.js + Express.js** que serve como a única ponte de comunicação entre o front-end Angular e o banco de dados **PostgreSQL**. Ela é responsável por toda a lógica de persistência e regras de negócio: gestão de categorias, contas, transações automáticas e investimentos.
 
 ### Como executar
 
-A partir da **raiz do projeto**, basta rodar:
+A partir da **raiz do projeto**, basta utilizar o Docker Compose (Recomendado):
 
 ```bash
-node back-end/server.js
+docker compose up -d
 ```
 
-O servidor sobe na porta `3000` e exibe `✅ API rodando na porta 3000` no terminal. Todas as migrations de banco são executadas automaticamente antes do servidor começar a aceitar requisições.
+Ou manualmente (após configurar o `.env`):
+```bash
+npm start --prefix back-end
+```
 
 ### Estrutura de pastas
 
 ```
 back-end/
-├── server.js              # Ponto de entrada: executa migrations e inicia o servidor
+├── server.js              # Ponto de entrada: Conecta ao banco e inicia o servidor
 ├── package.json
 ├── src/
 │   ├── app.js             # Configura Express, CORS e monta todos os routers
 │   ├── db/
-│   │   ├── database.js    # Singleton de conexão SQLite (better-sqlite3)
-│   │   ├── migrations.js  # Engine de migrations: schema, seeds e alters
-│   │   └── migrations/
-│   │       ├── 001_schema.sql   # CREATE TABLE para todas as entidades
-│   │       ├── 002_seed.sql     # Dados padrão de domínio e configurações
-│   │       └── 003_alter.sql    # Documentação dos ALTER TABLE incrementais
+│   │   ├── database.js    # Pool de conexões PostgreSQL (pg driver)
+│   │   └── init.sql       # Script de Schema: tabelas, enums e sementes iniciais
 │   └── routes/
 │       ├── categorias.routes.js
-│       ├── metodos-pagamento.routes.js
+│       ├── contas.routes.js     # Evolução de metodos-pagamento
 │       ├── transacoes.routes.js
 │       ├── configuracoes.routes.js
 │       ├── investimentos.routes.js
 │       └── saldo.routes.js
-└── data/
-    └── financeiro.db      # Banco SQLite (gerado automaticamente)
 ```
 
-### Endpoints disponíveis
+### Endpoints principais
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| `GET` | `/categorias` | Lista categorias |
-| `POST` | `/categorias` | Cria categoria |
-| `PUT` | `/categorias/:id` | Atualiza categoria |
-| `DELETE` | `/categorias/:id` | Remove categoria |
-| `GET` | `/metodos-pagamento` | Lista métodos de pagamento |
-| `POST` | `/metodos-pagamento` | Cria método de pagamento |
-| `PUT` | `/metodos-pagamento/:id` | Atualiza método |
-| `DELETE` | `/metodos-pagamento/:id` | Remove método |
-| `GET` | `/transacoes` | Lista transações (com filtros de data/período) |
-| `GET` | `/transacoes/periodos` | Lista períodos (ano-mês) com transações |
-| `POST` | `/transacoes` | Cria transação avulsa, fixa ou parcelada |
-| `PUT` | `/transacoes/:id` | Atualiza transação |
-| `DELETE` | `/transacoes/:id` | Remove transação (ou toda a recorrência com `?deleteAll=true`) |
-| `GET` | `/configuracoes/periodo` | Retorna o dia de início do período financeiro |
-| `PUT` | `/configuracoes/periodo` | Atualiza o dia de início do período |
-| `GET` | `/investimentos` | Lista investimentos |
-| `POST` | `/investimentos` | Registra investimento |
-| `DELETE` | `/investimentos/:id` | Remove investimento |
-| `GET` | `/saldo-acumulado` | Calcula saldo acumulado por método até uma data |
+| `GET` | `/categorias` | Lista categorias (Gasto/Receita) |
+| `GET` | `/contas` | Lista contas (Carteira/Crédito/Investimento) |
+| `GET` | `/transacoes` | Lista transações filtradas por período |
+| `POST` | `/transacoes` | Cria transação (Avulsa/Fixa/Parcelada) |
+| `GET` | `/saldo-acumulado` | Calcula saldo real vs projeção |
 
 ---
 
-### 🔄 Migrations
+### 🔄 Persistência e Integridade
 
-**Migrations** são o mecanismo que garante que o banco de dados seja criado e mantido com a estrutura correta toda vez que a API é iniciada — seja a primeira vez, seja em um ambiente já existente com dados.
+A estrutura do banco de dados é inicializada automaticamente via `src/db/init.sql`. Diferente do SQLite, o PostgreSQL nos permite usar **Enums nativos** e **DECIMAL(15,2)**, garantindo que não haja erros de arredondamento em cálculos financeiros críticos.
 
-O módulo `src/db/migrations.js` é executado automaticamente no `server.js` antes do servidor começar a aceitar requisições, e funciona em três etapas:
-
-#### 1. Schema (`001_schema.sql`)
-Contém todos os `CREATE TABLE IF NOT EXISTS`. Na primeira execução, cria todas as tabelas do zero. Em execuções subsequentes, o `IF NOT EXISTS` garante que tabelas já existentes não sejam recriadas nem seus dados perdidos.
-
-#### 2. Seeds (`002_seed.sql`)
-Insere os dados padrão de domínio usando `INSERT OR IGNORE`, o que garante que os seeds rodem com segurança múltiplas vezes sem duplicar registros:
-- Tipos de transação: `avulsa`, `fixa`, `parcelada`
-- Direções: `gasto`, `receita`
-- Configuração padrão: `dia_inicio_periodo = 1`
-
-#### 3. Alters Incrementais (`migrations.js`)
-Colunas adicionadas ao banco em versões mais novas da aplicação (como `direcao_id`, `icone`, `tipo`) são aplicadas programaticamente com proteção via `PRAGMA table_info`. Antes de executar qualquer `ALTER TABLE`, o código verifica se a coluna já existe — evitando erros em bancos de dados de usuários antigos que já a possuem.
+Toda a comunicação é **assíncrona**, utilizando o driver `pg` com pooling de conexões para máxima performance e resiliência.
+ Antes de executar qualquer `ALTER TABLE`, o código verifica se a coluna já existe — evitando erros em bancos de dados de usuários antigos que já a possuem.
 
 > **Em resumo:** as migrations garantem que qualquer pessoa que baixe o projeto e rode `node server.js` terá o banco de dados criado e pronto para uso sem nenhuma configuração manual, e que usuários antigos não perderão seus dados ao atualizar.
 
@@ -286,7 +270,7 @@ cd back-end && npm test
 ---
 
 **O que é testado:**
-- No **Back-end**, validamos o ciclo completo de transações, cálculos de saldo acumulado e CRUD de categorias/investimentos em um banco SQLite isolado.
+- No **Back-end**, validamos o ciclo completo de transações, cálculos de saldo acumulado e CRUD de categorias/investimentos em um banco PostgreSQL isolado.
 - No **Front-end**, testamos serviços de comunicação (FinanceService), lógica de manipulação de estados do `MensalComponent` e a integridade da UI do Angular.
 
 ---

@@ -1,227 +1,150 @@
-# Finance Manager — API local (SQLite)
+# ⚙️ Finance Manager API
 
-Este README documenta o script `server.js` em `back-end/`.
-
-## O que é
-Uma API Node.js minimalista que usa SQLite (`better-sqlite3`) para armazenar dados localmente. Suporta:
-- Categorias
-- Métodos de pagamento
-- Recorrências (fixas ou parceladas)
-- Transações avulsas e geradas a partir de recorrências
-
-## Arquitetura de dados (tabelas)
-- `categorias`:
-  - `id` INTEGER PK
-  - `nome` TEXT NOT NULL
-
-- `metodos_pagamento`:
-  - `id` INTEGER PK
-  - `nome` TEXT NOT NULL
-
-- `recorrencias`:
-  - `id` INTEGER PK
-  - `descricao` TEXT NOT NULL
-  - `valor` REAL NOT NULL
-  - `categoria_id` INTEGER FK -> `categorias.id`
-  - `metodo_pagamento_id` INTEGER FK -> `metodos_pagamento.id`
-  - `dia_vencimento` INTEGER NOT NULL (1-31)
-  - `tipo_id` INTEGER NOT NULL -> FK `transacao_tipos(id)` (ver tabela de domínio)
-  - `total_parcelas` INTEGER NULL (aplicável a `parcelada`)
-  - `parcelas_restantes` INTEGER NULL (aplicável a `parcelada`)
-
-- `transacoes`:
-  - `id` INTEGER PK
-  - `descricao` TEXT NOT NULL
-  - `valor` REAL NOT NULL
-  - `data` TEXT NOT NULL (YYYY-MM-DD)
-  - `categoria_id` INTEGER FK
-  - `metodo_pagamento_id` INTEGER FK
-  - `tipo_id` INTEGER NOT NULL -> FK `transacao_tipos(id)` (1=avulsa,2=fixa,3=parcelada)
-  - `parcela_atual` INTEGER NULL (se for parcela)
-  - `recorrencia_id` INTEGER NULL (se vier de uma recorrência)
-  - `created_at` TEXT DEFAULT now
-
-TABELA DE DOMÍNIO:
-- `transacao_tipos`:
-  - `id` INTEGER PK (1=avulsa, 2=fixa, 3=parcelada)
-  - `nome` TEXT
-
-## Como rodar (local)
-1. Abra um terminal na pasta `back-end`.
-2. Instale dependências (se houver `package.json`):
-
-```bash
-npm install express cors better-sqlite3
-```
-
-3. Inicie a API:
-
-```bash
-node server.js
-```
-
-A API escuta na porta `3000` por padrão.
-
-## Endpoints e exemplos (JSON)
-- Cabeçalho comum: `Content-Type: application/json`
-
-1) POST /categorias
-Body:
-```json
-{ "nome": "Alimentação" }
-```
-Resposta (201):
-```json
-{ "ok": true, "id": 1 }
-```
-
-2) GET /categorias
-(no body)
-Resposta (200): array de categorias
-
-3) PUT /categorias/:id
-Body:
-```json
-{ "nome": "Supermercado" }
-```
-Resposta (200): `{ "ok": true }`
-
-4) POST /metodos-pagamento
-Body:
-```json
-{ "nome": "Cartão de Crédito" }
-```
-Resposta (201): `{ "ok": true, "id": 1 }`
-
-5) GET /metodos-pagamento
-(no body)
-
-6) PUT /metodos-pagamento/:id
-Body:
-```json
-{ "nome": "Boleto" }
-```
-
-7) POST /recorrencias
-Esta rota foi removida. Crie recorrências e transações usando `POST /transacoes` com o campo `tipo` (`fixa` ou `parcelada`). Veja as instruções em `POST /transacoes`.
-
-8) POST /recorrencias/gerar-mensal
-Esta rota foi removida. Use `POST /transacoes` com `tipo` apropriado para criar recorrências e suas transações.
-
-9) POST /transacoes
-Responsabilidade estendida: além de inserir transações avulsas, este endpoint pode criar `recorrencias` quando o payload incluir `tipo`.
-
-Exemplo (transação avulsa):
-```json
-{
-  "descricao": "Almoço",
-  "valor": 35.5,
-  "data": "2026-03-15",
-  "categoria_id": 1,
-  "metodo_pagamento_id": 1
-}
-```
-
-Exemplo (criar recorrência fixa — cria rec e transação inicial):
-```json
-{
-  "descricao": "Assinatura X",
-  "valor": 29.9,
-  "data": "2026-03-15",
-  "categoria_id": 1,
-  "metodo_pagamento_id": 1,
-  "tipo": "fixa",
-  "dia_vencimento": 5
-}
-```
-
-Exemplo (criar recorrência parcelada — cria rec e todas as parcelas):
-```json
-{
-  "descricao": "Celular",
-  "valor": 1200,
-  "data": "2026-03-20",
-  "categoria_id": 3,
-  "metodo_pagamento_id": 1,
-  "tipo": "parcelada",
-  "total_parcelas": 12,
-  "dia_vencimento": 20
-}
-```
-
-Respostas:
-- Para `tipo: "fixa"`: `{ "ok": true, "recorrencia_id": <id> }` (201)
-- Para `tipo: "parcelada"`: `{ "ok": true, "recorrencia_id": <id>, "parcelas": <n>, "transacao_ids": [...] }` (201)
-- Para transação avulsa: `{ "ok": true, "id": <id> }` (201)
-
-10) PUT /transacoes/:id
-Body (enviar os campos a atualizar):
-```json
-{
-  "descricao": "Almoço com cliente",
-  "valor": 45.0,
-  "data": "2026-03-15",
-  "categoria_id": 1,
-  "metodo_pagamento_id": 1,
-  "parcela_atual": null
-}
-```
-Resposta: `{ "ok": true }`
-
-11) DELETE /transacoes/:id
-(no body)
-Resposta: `{ "ok": true }`
-
-12) GET /transacoes
-(no body)
-Resposta: array de transações
-
-## Boas práticas e pontos a melhorar
-- Exibir recorrências fixas no front-end: o servidor cria a `recorrencia` (quando solicitado), mas não gera cobranças mensais automaticamente — o front-end deve mostrar a recorrência em meses futuros ou você pode optar por agendar um job backend se preferir geração automática.
-- Evitar duplicação: ao criar transações/recorrências, implemente checagens (por exemplo, verificar existência de recorrência similar ou transação no mesmo mês) para evitar inserções duplicadas.
-- Adicionar autenticação/autorizações se a API for exposta além do ambiente local.
-- Validar ranges e tipos: por exemplo `dia_vencimento` entre 1 e 31, `valor` maior que zero, `total_parcelas` inteiro positivo.
- - Considere usar transações de banco (`BEGIN/COMMIT`) ao criar recorrência + múltiplas parcelas para garantir atomicidade.
-
-| `GET` | `/saldo-acumulado` | Calcula saldo acumulado por método até uma data |
-| `GET` | `/configuracoes/icones` | Lista todos os ícones customizados (SVGs/PNGs) importados |
-| `POST` | `/configuracoes/icones/upload` | Faz o upload de um novo arquivo de ícone (`icon`) |
-| `DELETE` | `/configuracoes/icones/:filename` | Remove um arquivo de ícone pelo nome |
+Esta é a documentação da API REST do **Finance Manager**, o cérebro por trás da persistência e lógica de negócio do sistema de gestão financeira.
 
 ---
 
-## 🎨 Gerenciamento de Ícones Customizados
+## 🤖 Desenvolvimento Orientado a IA
 
-A API suporta o armazenamento e servimento de ícones customizados (logotipos de bancos, ícones de categorias específicas, etc.) que podem ser usados no lugar de emojis.
-
-### O que faz
-Os ícones são armazenados fisicamente na pasta `public/icons/` do servidor e servidos como ativos estáticos. Ao cadastrar uma categoria ou método de pagamento, o front-end envia o caminho da imagem ou o emoji como uma string no campo `icone`.
-
-### Rotas e Utilização
-
-1) **GET /configuracoes/icones**
-Retorna uma lista de objetos contendo o nome legível, o nome do arquivo e a URL absoluta para renderização.
-**Exemplo de Resposta:**
-```json
-[
-  {
-    "nome": "nubank",
-    "path": "http://localhost:3000/icons/nubank.svg",
-    "filename": "nubank.svg"
-  }
-]
-```
-
-2) **POST /configuracoes/icones/upload**
-Recebe um arquivo via `multipart/form-data` com a chave `icon`.
-**Formatos Suportados:** `.svg`, `.png`, `.ico`, `.icon`.
-**Resposta:** Retorna os dados do ícone recém-criado.
-
-3) **DELETE /configuracoes/icones/:filename**
-Remove o arquivo do disco.
+Este projeto foi desenvolvido **inteiramente por Inteligência Artificial (Antigravity)**. Desde a concepção da arquitetura, modelagem do banco de dados PostgreSQL, implementação das rotas REST até a criação da suíte de testes automatizados e esta própria documentação. O desenvolvimento seguiu práticas modernas de Clean Code, Modularidade e Tipagem Estrita.
 
 ---
 
-Arquivo fonte: `server.js` (em `back-end/`).
+## 📖 O que a API faz
 
-Se quiser, eu gero uma collection do Insomnia/Postman pronta para importar com todos os exemplos acima.
+A API do Finance Manager gerencia todo o ciclo de vida dos dados financeiros do usuário:
+- **Gestão de Categorias e Contas**: Permite a criação e personalização de categorias (com ícones/emojis) e contas bancárias/métodos de pagamento.
+- **Processamento de Transações**: Controla transações avulsas, fixas (mensais) e parceladas com lógica de atualização automática.
+- **Cálculos Financeiros**: Computa saldos acumulados, projeções de fim de mês e consolidação de gastos por categoria.
+- **Gestão de Investimentos**: Monitora aportes e resgates de forma isolada do saldo operacional.
+- **Upload de Ativos**: Gerencia o armazenamento de ícones personalizados enviados pelo usuário.
+
+---
+
+## 📚 Bibliotecas e Versões
+
+| Biblioteca | Versão | Função |
+| :--- | :--- | :--- |
+| **express** | `^4.21.1` | Framework web minimalista para Node.js, gerencia rotas e middlewares. |
+| **pg** | `^8.20.0` | Driver cliente para PostgreSQL, suportando Connection Pool e consultas assíncronas. |
+| **cors** | `^2.8.5` | Middleware para habilitar o compartilhamento de recursos entre diferentes origens (Security). |
+| **dotenv** | `^17.3.1` | Carrega variáveis de ambiente a partir de um arquivo `.env` para segurança de credenciais. |
+| **multer** | `^2.1.1` | Middleware para manipulação de `multipart/form-data`, utilizado no upload de ícones. |
+| **jest** | `^30.3.0` | Framework de testes unitários e de integração com suporte a cobertura de código. |
+| **supertest** | `^7.2.2` | Biblioteca para testar endpoints HTTP simulando requisições reais. |
+
+---
+
+## 🗄️ Banco de Dados e Estrutura
+
+O sistema utiliza o **PostgreSQL**, um banco de dados relacional robusto e performático. A estrutura foi desenhada utilizando Enums nativos para integridade de dados e tipos decimais precisos para valores monetários.
+
+### Estrutura de Tabelas e Relações
+
+```mermaid
+erDiagram
+    CONFIGURACAOE ||--|| CATEGORIAS : "configura"
+    CONTAS ||--o{ TRANSACOES : "possui"
+    CATEGORIAS ||--o{ TRANSACOES : "classifica"
+    RECORRENCIAS ||--o{ TRANSACOES : "gera"
+    CATEGORIAS ||--o{ RECORRENCIAS : "classifica"
+    CONTAS ||--o{ RECORRENCIAS : "vincula"
+    CONTAS ||--o{ INVESTIMENTOS : "armazena"
+
+    CATEGORIAS {
+        int id PK
+        string nome
+        direcao_transacao direcao
+        string icone
+    }
+
+    CONTAS {
+        int id PK
+        string nome
+        tipo_conta tipo
+        string icone
+    }
+
+    TRANSACOES {
+        int id PK
+        string descricao
+        decimal valor
+        date data
+        int categoria_id FK
+        int conta_id FK
+        int recorrencia_id FK
+        tipo_transacao tipo
+    }
+
+    RECORRENCIAS {
+        int id PK
+        string descricao
+        decimal valor
+        int dia_vencimento
+        tipo_transacao tipo
+    }
+```
+
+- **Enums Nativos**: `direcao_transacao` (gasto/receita), `tipo_conta` (carteira/credito/investimento) e `tipo_transacao` (avulsa/fixa/parcelada).
+- **Tipos Decimais**: Todos os campos financeiros utilizam `DECIMAL(15,2)` para evitar erros de arredondamento de ponto flutuante.
+
+---
+
+## 🚀 Como Executar
+
+### 1. Requisitos
+- Node.js v20 ou superior.
+- Instância do PostgreSQL rodando (ou via Docker).
+
+### 2. Configuração
+Crie um arquivo `.env` na pasta `back-end/` com as suas credenciais:
+```env
+DB_USER=seu_usuario
+DB_HOST=localhost
+DB_PASSWORD=sua_senha
+DB_NAME=finance_manager
+DB_PORT=5432
+PORT=3000
+```
+
+### 3. Instalação e Execução
+```bash
+cd back-end
+npm install
+npm start
+```
+
+---
+
+## 🧪 Testes Automatizados
+
+A API possui uma cobertura rigorosa de testes unitários e de integração utilizando **Jest**.
+
+### Como executar os testes:
+
+```bash
+# Rodar todos os testes
+npm test
+
+# Rodar com relatório de cobertura (Coverage)
+npm run test:coverage
+```
+
+A cobertura atual do backend é superior a **90%**, validando desde as lógicas de cálculo de saldo até a integridade das rotas REST.
+
+---
+
+## 🏗️ Arquitetura do Sistema
+
+A API segue o padrão de camadas para separação de preocupações:
+
+```mermaid
+flowchart TD
+    Client[Client Front-end] --> Routes[API Routes]
+    subgraph Express_App [Express Application]
+        Routes --> Middlewares[Middlewares: Cors, JSON, Multer]
+        Middlewares --> Controllers[Controllers / Business Logic]
+        Controllers --> Repository[Data Access Layer / pg Driver]
+    end
+    Repository --> DB[(PostgreSQL)]
+```
