@@ -1,15 +1,35 @@
 
 
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: finance-manager-db
+    environment:
+      POSTGRES_USER: finance_user
+      POSTGRES_PASSWORD: finance_password
+      POSTGRES_DB: finance_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./back-end/src/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
   backend:
     build:
       context: ./back-end
       dockerfile: Dockerfile
     container_name: finance-manager-backend
+    environment:
+      - DATABASE_URL=postgresql://finance_user:finance_password@db:5432/finance_db
+      - PORT=3000
     ports:
       - "3000:3000"
     volumes:
       - ./back-end/data:/app/data
+      - ./public/icons:/app/public/icons
+    depends_on:
+      - db
     restart: always
 
   frontend:
@@ -22,3 +42,6 @@ services:
     depends_on:
       - backend
     restart: always
+
+volumes:
+  postgres_data:

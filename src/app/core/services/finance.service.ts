@@ -1,10 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { Categoria } from '../models/categoria.model';
 import { MetodoPagamento } from '../models/metodo-pagamento.model';
 import { Periodo } from '../models/periodo.model';
 import { Transacao, TransacaoPayload, TransacaoEditPayload } from '../models/transacao.model';
+import { TypeMapper } from '../../shared/utils/type-mapper.util';
 
 @Injectable({
   providedIn: 'root'
@@ -75,11 +76,22 @@ export class FinanceService {
 
   getTransacoes(dateFrom?: string, dateTo?: string): Observable<Transacao[]> {
     const params = (dateFrom && dateTo) ? `?dateFrom=${dateFrom}&dateTo=${dateTo}` : '';
-    return this.http.get<Transacao[]>(`${this.baseUrl}/transacoes${params}`);
+    return this.http.get<any[]>(`${this.baseUrl}/transacoes${params}`).pipe(
+      map(rows => rows.map(r => TypeMapper.mapTransacao(r)))
+    );
   }
 
   getSaldoAcumulado(dateTo: string): Observable<{ saldo_acumulado: number; saldos_metodos: { [key: string]: number } }> {
-    return this.http.get<{ saldo_acumulado: number; saldos_metodos: { [key: string]: number } }>(`${this.baseUrl}/saldo-acumulado?dateTo=${dateTo}`);
+    return this.http.get<any>(`${this.baseUrl}/saldo-acumulado?dateTo=${dateTo}`).pipe(
+      map(res => ({
+        ...res,
+        saldo_acumulado: TypeMapper.toNumber(res.saldo_acumulado),
+        saldos_metodos: Object.keys(res.saldos_metodos || {}).reduce((acc: any, key) => {
+          acc[key] = TypeMapper.toNumber(res.saldos_metodos[key]);
+          return acc;
+        }, {})
+      }))
+    );
   }
 
   criarTransacao(payload: TransacaoPayload): Observable<{ ok: boolean; id?: number; recorrencia_id?: number }> {

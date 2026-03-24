@@ -1,6 +1,6 @@
 /**
- * metodos-pagamento.routes.js
- * Rotas CRUD para métodos de pagamento.
+ * metodos-pagamento.routes.js (Agora usando tabela 'contas')
+ * Rotas CRUD para métodos de pagamento (Contas).
  * Prefixo: /metodos-pagamento
  */
 
@@ -10,9 +10,16 @@ import db from '../db/database.js';
 const router = Router();
 
 // GET /metodos-pagamento
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const rows = db.prepare('SELECT * FROM metodos_pagamento ORDER BY nome ASC').all();
+    const result = await db.query('SELECT id, nome, icone, tipo FROM contas ORDER BY nome ASC');
+    
+    // Converte de volta 'carteira' -> 'padrao' para compatibilidade com o front
+    const rows = result.rows.map(r => ({
+      ...r,
+      tipo: r.tipo === 'carteira' ? 'padrao' : r.tipo
+    }));
+    
     res.json(rows);
   } catch (err) {
     res.status(500).json({ ok: false, error: String(err) });
@@ -20,28 +27,35 @@ router.get('/', (req, res) => {
 });
 
 // POST /metodos-pagamento
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { nome, icone, tipo } = req.body;
     if (!nome) return res.status(400).json({ ok: false, error: 'nome is required' });
 
-    const tipoVal = tipo || 'padrao';
-    const result = db.prepare('INSERT INTO metodos_pagamento (nome, icone, tipo) VALUES (?, ?, ?)').run(nome, icone || '🪙', tipoVal);
-    res.status(201).json({ ok: true, id: result.lastInsertRowid });
+    // Mapeia 'padrao' -> 'carteira'
+    const tipoVal = (tipo === 'padrao' || !tipo) ? 'carteira' : tipo;
+    
+    const sql = 'INSERT INTO contas (nome, icone, tipo) VALUES ($1, $2, $3) RETURNING id';
+    const result = await db.query(sql, [nome, icone || '🪙', tipoVal]);
+    
+    res.status(201).json({ ok: true, id: result.rows[0].id });
   } catch (err) {
     res.status(500).json({ ok: false, error: String(err) });
   }
 });
 
 // PUT /metodos-pagamento/:id
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const { nome, icone, tipo } = req.body;
     const { id } = req.params;
     if (!nome) return res.status(400).json({ ok: false, error: 'nome is required' });
 
-    const tipoVal = tipo || 'padrao';
-    db.prepare('UPDATE metodos_pagamento SET nome = ?, icone = ?, tipo = ? WHERE id = ?').run(nome, icone || '🪙', tipoVal, id);
+    const tipoVal = (tipo === 'padrao' || !tipo) ? 'carteira' : tipo;
+    
+    const sql = 'UPDATE contas SET nome = $1, icone = $2, tipo = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4';
+    await db.query(sql, [nome, icone || '🪙', tipoVal, id]);
+    
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, error: String(err) });
@@ -49,10 +63,10 @@ router.put('/:id', (req, res) => {
 });
 
 // DELETE /metodos-pagamento/:id
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    db.prepare('DELETE FROM metodos_pagamento WHERE id = ?').run(id);
+    await db.query('DELETE FROM contas WHERE id = $1', [id]);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, error: String(err) });

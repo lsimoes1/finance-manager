@@ -42,9 +42,10 @@ const upload = multer({
 });
 
 // GET /configuracoes/periodo
-router.get('/periodo', (req, res) => {
+router.get('/periodo', async (req, res) => {
   try {
-    const row = db.prepare("SELECT valor FROM configuracoes WHERE chave = 'dia_inicio_periodo'").get();
+    const result = await db.query("SELECT valor FROM configuracoes WHERE chave = 'dia_inicio_periodo'");
+    const row = result.rows[0];
     res.json({ dia_inicio: row ? parseInt(row.valor, 10) : 1 });
   } catch (err) {
     res.status(500).json({ ok: false, error: String(err) });
@@ -52,7 +53,7 @@ router.get('/periodo', (req, res) => {
 });
 
 // PUT /configuracoes/periodo
-router.put('/periodo', (req, res) => {
+router.put('/periodo', async (req, res) => {
   try {
     const { dia_inicio } = req.body;
     const dia = parseInt(dia_inicio, 10);
@@ -61,7 +62,13 @@ router.put('/periodo', (req, res) => {
       return res.status(400).json({ ok: false, error: 'dia_inicio deve ser entre 1 e 28' });
     }
 
-    db.prepare("INSERT OR REPLACE INTO configuracoes (chave, valor) VALUES ('dia_inicio_periodo', ?)").run(String(dia));
+    const sql = `
+      INSERT INTO configuracoes (chave, valor) 
+      VALUES ('dia_inicio_periodo', $1) 
+      ON CONFLICT (chave) DO UPDATE SET valor = EXCLUDED.valor, updated_at = CURRENT_TIMESTAMP
+    `;
+    await db.query(sql, [String(dia)]);
+    
     res.json({ ok: true, dia_inicio: dia });
   } catch (err) {
     res.status(500).json({ ok: false, error: String(err) });
@@ -82,7 +89,6 @@ router.get('/icones', (req, res) => {
         return fn.endsWith('.svg') || fn.endsWith('.icon') || fn.endsWith('.png') || fn.endsWith('.ico');
       })
       .map(f => {
-        // Usa host do request para montar URL absoluta
         const baseUrl = `${req.protocol}://${req.get('host')}`;
         return {
           nome: f.replace(/\.(svg|icon|png|ico)$/i, '').toLowerCase(),

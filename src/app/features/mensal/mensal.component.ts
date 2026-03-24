@@ -116,6 +116,7 @@ export class MensalComponent implements OnInit {
   detailsModalTitle: string = '';
   detailsModalTransactions: Transacao[] = [];
   detailsModalValue: number = 0;
+  detailsModalLabel: string = 'Impacto Líquido';
 
   // Importação TXT
   importedTransactions: any[] = [];
@@ -314,8 +315,8 @@ export class MensalComponent implements OnInit {
 
   get recorrentes(): Transacao[] {
     return this.transacoes.filter(t =>
-      (t.tipo_name === 'fixa' || t.tipo_name === 'parcelada') &&
-      t.direcao_name === 'gasto'
+      (t.tipo === 'fixa' || t.tipo === 'parcelada') &&
+      t.direcao === 'gasto'
     );
   }
 
@@ -336,22 +337,22 @@ export class MensalComponent implements OnInit {
 
   get avulsas(): Transacao[] {
     return this.transacoes.filter(t =>
-      t.tipo_name === 'avulsa' &&
-      t.direcao_name === 'gasto'
+      t.tipo === 'avulsa' &&
+      t.direcao === 'gasto'
     );
   }
 
   // Aportes / Transferências para investimento
   get aportesInvestimento(): Transacao[] {
     return this.transacoes.filter(t =>
-      t.direcao_name === 'gasto' &&
+      t.direcao === 'gasto' &&
       t.metodo_tipo === 'investimento'
     );
   }
 
   get resgatesInvestimento(): Transacao[] {
     return this.transacoes.filter(t =>
-      t.direcao_name === 'receita' &&
+      t.direcao === 'receita' &&
       t.metodo_tipo === 'investimento'
     );
   }
@@ -363,7 +364,7 @@ export class MensalComponent implements OnInit {
   }
 
   get receitas(): Transacao[] {
-    return this.transacoes.filter(t => t.direcao_name === 'receita');
+    return this.transacoes.filter(t => t.direcao === 'receita');
   }
 
   get categoriasUnicasGerais(): { nome: string, icone: string }[] {
@@ -437,19 +438,19 @@ export class MensalComponent implements OnInit {
 
   get totalGastosAvulsos(): number {
     return this.avulsas
-      .filter(t => t.metodo_tipo === 'padrao')
+      .filter(t => t.metodo_tipo === 'carteira')
       .reduce((acc, t) => acc + Number(t.valor), 0);
   }
 
   get totalFixos(): number {
     return this.recorrentes
-      .filter(t => t.metodo_tipo === 'padrao')
+      .filter(t => t.metodo_tipo === 'carteira')
       .reduce((acc, t) => acc + Number(t.valor), 0);
   }
 
   get totalCartaoCredito(): number {
     return this.transacoes
-      .filter(t => t.metodo_tipo === 'credito' && t.direcao_name === 'gasto')
+      .filter(t => t.metodo_tipo === 'credito' && t.direcao === 'gasto')
       .reduce((acc, t) => acc + Number(t.valor), 0);
   }
 
@@ -470,10 +471,10 @@ export class MensalComponent implements OnInit {
     // Gastos que já saíram do caixa: só métodos "padrao" (nem crédito, nem investimento)
     const realizadasGas =
       this.avulsas
-        .filter(t => t.data <= this.todayDateStr && t.metodo_tipo === 'padrao')
+        .filter(t => t.data <= this.todayDateStr && t.metodo_tipo === 'carteira')
         .reduce((acc, t) => acc + Number(t.valor), 0) +
       this.recorrentes
-        .filter(t => t.data <= this.todayDateStr && t.metodo_tipo === 'padrao')
+        .filter(t => t.data <= this.todayDateStr && t.metodo_tipo === 'carteira')
         .reduce((acc, t) => acc + Number(t.valor), 0);
 
     // Aportes de investimento realizados também saem do caixa
@@ -558,9 +559,9 @@ export class MensalComponent implements OnInit {
     reader.onload = (e: any) => {
       const contents = e.target.result;
       this.parseTXT(contents);
-      event.target.value = ''; // reseta o input
     };
     reader.readAsText(file, 'UTF-8');
+    event.target.value = ''; // reseta o input synchronous
   }
 
   private parseTXT(contents: string): void {
@@ -680,7 +681,7 @@ export class MensalComponent implements OnInit {
       categoria_id: item.categoria_id,
       metodo_pagamento_id: item.metodo_pagamento_id,
       parcela_atual: item.parcela_atual,
-      tipo: item.tipo_name as 'fixa' | 'parcelada',
+      tipo: item.tipo as 'fixa' | 'parcelada',
       total_parcelas: item.recorrencia_total_parcelas || undefined,
     };
     this.openModal('editModal');
@@ -728,6 +729,7 @@ export class MensalComponent implements OnInit {
     if (this.isLoadingTransacoes) return;
 
     this.detailsModalTransactions = [];
+    this.detailsModalLabel = 'Impacto Líquido';
 
     switch (type) {
       case 'receitas':
@@ -747,23 +749,25 @@ export class MensalComponent implements OnInit {
         break;
       case 'credito':
         this.detailsModalTitle = 'Detalhes: Fatura de Cartões de Crédito';
-        this.detailsModalTransactions = this.transacoes.filter(t => t.metodo_tipo === 'credito' && t.direcao_name === 'gasto');
+        this.detailsModalTransactions = this.transacoes.filter(t => t.metodo_tipo === 'credito' && t.direcao === 'gasto');
         this.detailsModalValue = this.totalCartaoCredito * -1;
         break;
       case 'investimentos':
         this.detailsModalTitle = 'Detalhes: Extrato de Investimento';
         this.detailsModalTransactions = [...this.aportesInvestimento, ...this.resgatesInvestimento].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
-        this.detailsModalValue = this.totalInvestimentos * -1;
+        this.detailsModalValue = this.totalInvestimentos;
         break;
       case 'projecao':
         this.detailsModalTitle = 'Detalhes: Composição da Projeção';
         this.detailsModalTransactions = this.transacoes;
-        this.detailsModalValue = this.totalReceitas - this.totalGastos - this.totalInvestimentos;
+        this.detailsModalValue = this.projecaoSaldo;
+        this.detailsModalLabel = 'Valor consolidado projetado';
         break;
       case 'saldo':
         this.detailsModalTitle = 'Detalhes: Composição do Saldo Atual';
         this.detailsModalTransactions = this.transacoes.filter(t => t.data <= this.todayDateStr);
-        this.detailsModalValue = this.saldoAtual - this.saldoAnterior;
+        this.detailsModalValue = this.saldoAtual;
+        this.detailsModalLabel = 'Valor consolidado em conta';
         break;
     }
 
