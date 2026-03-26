@@ -19,8 +19,18 @@ router.get('/', async (req, res) => {
       SELECT
         c.nome as conta,
         c.tipo as tipo,
-        SUM(CASE WHEN t.direcao = 'receita' THEN t.valor ELSE 0 END) as receitas,
-        SUM(CASE WHEN t.direcao = 'gasto' THEN t.valor ELSE 0 END) as gastos
+        SUM(CASE 
+          WHEN c.tipo = 'investimento' THEN
+            (CASE WHEN t.direcao IN ('gasto', 'transferencia_entrada') THEN t.valor ELSE 0 END)
+          ELSE
+            (CASE WHEN t.direcao IN ('receita', 'transferencia_entrada') THEN t.valor ELSE 0 END)
+        END) as gains,
+        SUM(CASE 
+          WHEN c.tipo = 'investimento' THEN
+            (CASE WHEN t.direcao IN ('receita', 'transferencia_saida') THEN t.valor ELSE 0 END)
+          ELSE
+            (CASE WHEN t.direcao IN ('gasto', 'transferencia_saida') THEN t.valor ELSE 0 END)
+        END) as losses
       FROM transacoes t
       LEFT JOIN contas c ON t.conta_id = c.id
       WHERE t.data < $1
@@ -34,9 +44,9 @@ router.get('/', async (req, res) => {
     const saldosContas = {};
     
     for (const row of rows) {
-      const rec = Number(row.receitas) || 0;
-      const gas = Number(row.gastos) || 0;
-      const saldo_conta = Number((rec - gas).toFixed(2));
+      const positive = Number(row.gains) || 0;
+      const negative = Number(row.losses) || 0;
+      const saldo_conta = Number((positive - negative).toFixed(2));
       
       // Armazena saldo individual por conta
       saldosContas[row.conta || 'Outros'] = saldo_conta;

@@ -11,7 +11,23 @@ import multer from 'multer';
 import db from '../db/database.js';
 
 const router = Router();
-const iconsDir = path.join(process.cwd(), 'public', 'icons');
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Tenta encontrar a pasta de ícones de forma robusta
+const getIconsDir = () => {
+  const rootPublic = path.resolve(__dirname, '../../../public/icons');
+  const localPublic = path.resolve(process.cwd(), 'public', 'icons');
+  const backendPublic = path.resolve(__dirname, '../../public/icons');
+  
+  if (fs.existsSync(rootPublic)) return rootPublic;
+  if (fs.existsSync(backendPublic)) return backendPublic;
+  return localPublic;
+};
+
+const iconsDir = getIconsDir();
 
 // Configuração do Multer para salvar ícones
 const storage = multer.diskStorage({

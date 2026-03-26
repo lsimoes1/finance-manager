@@ -88,7 +88,7 @@ router.get('/', async (req, res) => {
       ...r,
       metodo_pagamento_id: r.conta_id,
       tipo_id: r.tipo === 'avulsa' ? 1 : (r.tipo === 'fixa' ? 2 : 3),
-      direcao_id: r.direcao === 'gasto' ? 1 : 2
+      direcao_id: r.direcao === 'gasto' ? 1 : (r.direcao === 'receita' ? 2 : 3)
     }));
 
     res.json(rows);
@@ -218,6 +218,63 @@ router.post('/', async (req, res) => {
 
     await client.query('COMMIT');
     res.status(201).json({ ok: true, id: result.rows[0].id, transacao_ids: [result.rows[0].id] });
+  } catch (err) {
+    if (client) await client.query('ROLLBACK');
+    res.status(500).json({ ok: false, error: String(err) });
+  } finally {
+    client.release();
+  }
+});
+
+// POST /transacoes/transferencia
+router.post('/transferencia', async (req, res) => {
+  const client = await db.pool.connect();
+  try {
+    const {
+      valor,
+      data,
+      conta_origem_id,
+      conta_destino_id,
+      descricao
+    } = req.body;
+
+    if (!valor || !data || !conta_origem_id || !conta_destino_id) {
+      return res.status(400).json({ ok: false, error: 'missing required fields' });
+    }
+
+    await client.query('BEGIN');
+
+    const transferId = Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+
+    // 1. Saída da conta de origem
+    const sqlSaida = `
+      INSERT INTO transacoes
+        (descricao, valor, data, conta_id, tipo, direcao, metadata)
+      VALUES ($1, $2, $3, $4, 'avulsa', 'transferencia_saida', $5)
+      RETURNING id
+    `;
+    const resSaida = await client.query(sqlSaida, [
+      descricao || 'Transferência (Saída)',
+      valor, data, conta_origem_id, JSON.stringify({ transfer_id: transferId, target_conta_id: conta_destino_id })
+    ]);
+
+    // 2. Entrada na conta de destino
+    const sqlEntrada = `
+      INSERT INTO transacoes
+        (descricao, valor, data, conta_id, tipo, direcao, metadata)
+      VALUES ($1, $2, $3, $4, 'avulsa', 'transferencia_entrada', $5)
+      RETURNING id
+    `;
+    const resEntrada = await client.query(sqlEntrada, [
+      descricao || 'Transferência (Entrada)',
+      valor, data, conta_destino_id, JSON.stringify({ transfer_id: transferId, source_conta_id: conta_origem_id })
+    ]);
+
+    await client.query('COMMIT');
+    res.status(201).json({
+      ok: true,
+      transacao_ids: [resSaida.rows[0].id, resEntrada.rows[0].id]
+    });
   } catch (err) {
     if (client) await client.query('ROLLBACK');
     res.status(500).json({ ok: false, error: String(err) });

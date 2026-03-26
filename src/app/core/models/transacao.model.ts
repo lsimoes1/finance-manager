@@ -1,4 +1,4 @@
-export type DirecaoTransacao = 'gasto' | 'receita';
+export type DirecaoTransacao = 'gasto' | 'receita' | 'transferencia_saida' | 'transferencia_entrada';
 export type TipoTransacao = 'avulsa' | 'fixa' | 'parcelada';
 
 export interface Transacao {
@@ -48,4 +48,12 @@ export interface TransacaoEditPayload {
   parcela_atual?: number | null;
   tipo?: TipoTransacao;
   total_parcelas?: number;
+}
+
+export interface TransferenciaPayload {
+  valor: number;
+  data: string;
+  conta_origem_id: number;
+  conta_destino_id: number;
+  descricao?: string;
 }

@@ -2,10 +2,21 @@ import pg from 'pg';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Garante que o .env seja carregado independentemente de onde o processo foi iniciado
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const { Pool } = pg;
+
+if (!process.env.DATABASE_URL) {
+  console.error('❌ ERRO: A variável de ambiente DATABASE_URL não está definida!');
+  console.error('Verifique se o arquivo .env existe na pasta back-end/');
+  process.exit(1);
+}
 
 const isProduction = process.env.NODE_ENV === 'production';
 

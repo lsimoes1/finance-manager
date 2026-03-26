@@ -13,7 +13,7 @@ import {
 } from '@angular/animations';
 
 import { FinanceService } from '../../core/services/finance.service';
-import { Transacao, TransacaoPayload, TransacaoEditPayload } from '../../core/models/transacao.model';
+import { Transacao, TransacaoPayload, TransacaoEditPayload, TransferenciaPayload } from '../../core/models/transacao.model';
 import { Categoria } from '../../core/models/categoria.model';
 import { MetodoPagamento } from '../../core/models/metodo-pagamento.model';
 import { Periodo } from '../../core/models/periodo.model';
@@ -107,6 +107,8 @@ export class MensalComponent implements OnInit {
 
   // --- Formulário de Receita ---
   novaReceita: TransacaoPayload = this.emptyReceita();
+  novaTransferencia: TransferenciaPayload = this.emptyTransferencia();
+  isSavingTransferencia = false;
 
   // --- Modal de Edição ---
   selectedTransaction: Transacao | null = null;
@@ -345,14 +347,14 @@ export class MensalComponent implements OnInit {
   // Aportes / Transferências para investimento
   get aportesInvestimento(): Transacao[] {
     return this.transacoes.filter(t =>
-      t.direcao === 'gasto' &&
+      (t.direcao === 'gasto' || t.direcao === 'transferencia_entrada') &&
       t.metodo_tipo === 'investimento'
     );
   }
 
   get resgatesInvestimento(): Transacao[] {
     return this.transacoes.filter(t =>
-      t.direcao === 'receita' &&
+      (t.direcao === 'receita' || t.direcao === 'transferencia_saida') &&
       t.metodo_tipo === 'investimento'
     );
   }
@@ -360,11 +362,15 @@ export class MensalComponent implements OnInit {
   get totalInvestimentos(): number {
     const aportes = this.aportesInvestimento.reduce((acc, t) => acc + Number(t.valor), 0);
     const resgates = this.resgatesInvestimento.reduce((acc, t) => acc + Number(t.valor), 0);
-    return aportes - resgates;
+    return Number((aportes - resgates).toFixed(2));
   }
 
   get receitas(): Transacao[] {
     return this.transacoes.filter(t => t.direcao === 'receita');
+  }
+
+  get transferencias(): Transacao[] {
+    return this.transacoes.filter(t => t.direcao === 'transferencia_entrada' || t.direcao === 'transferencia_saida');
   }
 
   get categoriasUnicasGerais(): { nome: string, icone: string }[] {
@@ -379,8 +385,8 @@ export class MensalComponent implements OnInit {
   }
 
   get transacoesGeraisFiltradas(): Transacao[] {
-    // Junta avulsas (gastos) e receitas
-    let list = [...this.avulsas, ...this.receitas];
+    // Junta avulsas (gastos), receitas e transferências
+    let list = [...this.avulsas, ...this.receitas, ...this.transferencias];
 
     // Aplica o filtro de categoria
     if (this.filterCategoriaGerais) {
@@ -458,31 +464,41 @@ export class MensalComponent implements OnInit {
     return this.totalGastosAvulsos + this.totalFixos;
   }
 
-  // Saldo real: receitas realizadas − gastos realizados excluindo crédito e investimento
+  // Saldo real: receitas realizadas − gastos realizados excluindo crédito e investimento, mais impacto de transferências em contas líquidas
   get saldoAtual(): number {
+    const liquidTypes = ['carteira']; // Podemos expandir se houver outros tipos líquidos
+
     const realizadasRec = this.receitas
-      .filter(t => t.data <= this.todayDateStr && t.metodo_tipo !== 'investimento')
+      .filter(t => t.data <= this.todayDateStr && liquidTypes.includes(t.metodo_tipo || ''))
       .reduce((acc, t) => acc + Number(t.valor), 0);
 
-    const resgatesRealizados = this.resgatesInvestimento
-      .filter(t => t.data <= this.todayDateStr)
-      .reduce((acc, t) => acc + Number(t.valor), 0);
-
-    // Gastos que já saíram do caixa: só métodos "padrao" (nem crédito, nem investimento)
     const realizadasGas =
       this.avulsas
-        .filter(t => t.data <= this.todayDateStr && t.metodo_tipo === 'carteira')
+        .filter(t => t.data <= this.todayDateStr && liquidTypes.includes(t.metodo_tipo || ''))
         .reduce((acc, t) => acc + Number(t.valor), 0) +
       this.recorrentes
-        .filter(t => t.data <= this.todayDateStr && t.metodo_tipo === 'carteira')
+        .filter(t => t.data <= this.todayDateStr && liquidTypes.includes(t.metodo_tipo || ''))
         .reduce((acc, t) => acc + Number(t.valor), 0);
 
-    // Aportes de investimento realizados também saem do caixa
-    const aportesRealizados = this.aportesInvestimento
-      .filter(t => t.data <= this.todayDateStr)
-      .reduce((acc, t) => acc + Number(t.valor), 0);
+    const transRealizadasLiquid = this.transferencias
+      .filter(t => t.data <= this.todayDateStr && liquidTypes.includes(t.metodo_tipo || ''))
+      .reduce((acc, t) => {
+        if (t.direcao === 'transferencia_entrada') return acc + Number(t.valor);
+        if (t.direcao === 'transferencia_saida') return acc - Number(t.valor);
+        return acc;
+      }, 0);
 
-    return Number((this.saldoAnterior + realizadasRec + resgatesRealizados - realizadasGas - aportesRealizados).toFixed(2));
+    // Impacto de investimentos realizados como 'gasto' (aporte) ou 'receita' (resgate) em contas de investimento
+    // Não incluímos transferências aqui para não duplicar o que já foi processado em 'transRealizadasLiquid'
+    const realizadasInvest = this.transacoes
+      .filter(t => t.data <= this.todayDateStr && t.metodo_tipo === 'investimento')
+      .reduce((acc, t) => {
+        if (t.direcao === 'gasto') return acc - Number(t.valor);
+        if (t.direcao === 'receita') return acc + Number(t.valor);
+        return acc;
+      }, 0);
+
+    return Number((this.saldoAnterior + realizadasRec - realizadasGas + transRealizadasLiquid + realizadasInvest).toFixed(2));
   }
 
   get saldoContaCorrente(): number {
@@ -503,12 +519,39 @@ export class MensalComponent implements OnInit {
         .filter(t => t.data <= this.todayDateStr && t.metodoPagamento === 'Carteira')
         .reduce((acc, t) => acc + Number(t.valor), 0);
 
-    return Number((prev + realizadasRec - realizadasGas).toFixed(2));
+    const transRealizadasMetodo = this.transferencias
+      .filter(t => t.data <= this.todayDateStr && t.metodo_tipo === 'carteira' && t.metodoPagamento === 'Carteira')
+      .reduce((acc, t) => {
+        if (t.direcao === 'transferencia_entrada') return acc + Number(t.valor);
+        if (t.direcao === 'transferencia_saida') return acc - Number(t.valor);
+        return acc;
+      }, 0);
+
+    return Number((prev + realizadasRec - realizadasGas + transRealizadasMetodo).toFixed(2));
   }
 
-  // Projeção: considera todos os gastos (incluindo crédito) e aportes de investimento
+  // Projeção: considera todos os gastos (incluindo crédito), aportes de investimento e o impacto líquido das transferências para o período
   get projecaoSaldo(): number {
-    return Number((this.saldoAnterior + this.totalReceitas - this.totalGastos - this.totalInvestimentos).toFixed(2));
+    const liquidTypes = ['carteira'];
+    
+    const impactoTransLiquid = this.transferencias
+      .filter(t => liquidTypes.includes(t.metodo_tipo || ''))
+      .reduce((acc, t) => {
+        if (t.direcao === 'transferencia_entrada') return acc + Number(t.valor);
+        if (t.direcao === 'transferencia_saida') return acc - Number(t.valor);
+        return acc;
+      }, 0);
+    
+    const impactoInvestimentosNaoTransf = this.transacoes
+      .filter(t => t.metodo_tipo === 'investimento')
+      .reduce((acc, t) => {
+        if (t.direcao === 'gasto') return acc - Number(t.valor);
+        if (t.direcao === 'receita') return acc + Number(t.valor);
+        return acc;
+      }, 0);
+    
+    // totalReceitas e totalGastos já filtram por tipo de conta onde apropriado
+    return Number((this.saldoAnterior + this.totalReceitas - this.totalGastos + impactoInvestimentosNaoTransf + impactoTransLiquid).toFixed(2));
   }
 
   // ────────────────────────────────────────────────────────────
@@ -645,10 +688,6 @@ export class MensalComponent implements OnInit {
     });
   }
 
-  // ────────────────────────────────────────────────────────────
-  // SALVAR RECEITA
-  // ────────────────────────────────────────────────────────────
-
   salvarReceita(): void {
     const payload: TransacaoPayload = {
       ...this.novaReceita,
@@ -663,6 +702,34 @@ export class MensalComponent implements OnInit {
       },
       error: (err) => {
         this.errorMsg = 'Erro ao salvar receita.';
+        console.error(err);
+      }
+    });
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // SALVAR TRANSFERÊNCIA
+  // ────────────────────────────────────────────────────────────
+
+  salvarTransferencia(): void {
+    if (!this.novaTransferencia.conta_origem_id || !this.novaTransferencia.conta_destino_id || !this.novaTransferencia.valor) {
+      alert('Preencha os campos obrigatórios para a transferência!');
+      return;
+    }
+
+    if (Number(this.novaTransferencia.conta_origem_id) === Number(this.novaTransferencia.conta_destino_id)) {
+      alert('A conta de origem e destino devem ser diferentes!');
+      return;
+    }
+
+    this.financeService.transferir(this.novaTransferencia).subscribe({
+      next: () => {
+        this.novaTransferencia = this.emptyTransferencia();
+        this.loadTransacoes();
+        this.closeModal('transferenciaModal');
+      },
+      error: (err) => {
+        this.errorMsg = 'Erro ao realizar transferência.';
         console.error(err);
       }
     });
@@ -841,6 +908,16 @@ export class MensalComponent implements OnInit {
       parcela_atual: null,
       tipo: undefined,
       total_parcelas: undefined,
+    };
+  }
+
+  private emptyTransferencia(): TransferenciaPayload {
+    return {
+      valor: 0,
+      data: new Date().toISOString().split('T')[0],
+      conta_origem_id: 0,
+      conta_destino_id: 0,
+      descricao: ''
     };
   }
 }

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "aws-dynamodb": {
+      "source": "alinaqi/claude-bootstrap",
+      "sourceType": "github",
+      "computedHash": "4c3e45f64175c94d9421ca270b486609a2adbe3033f23cd44f8914d8c10014f5"
+    },
+    "conventional-commit": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "f29c9486cede6c7b2df0cfb0a2e4aa67446552b991bcf17d1b309e903171f03d"
+    },
+    "create-specification": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "45b9ef98b0fb82ba0e1aee65dfb464fa1f8494a14a557b9788d73aae87e9e618"
+    }
+  }
+}

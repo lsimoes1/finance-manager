@@ -8,6 +8,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 
 import categoriasRouter      from './routes/categorias.routes.js';
 import metodosPagRouter      from './routes/metodos-pagamento.routes.js';
@@ -22,8 +23,21 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Tenta encontrar a pasta de ícones de forma robusta
+const getIconsDir = () => {
+  const rootPublic = path.resolve(__dirname, '../../public/icons');
+  const localPublic = path.resolve(process.cwd(), 'public', 'icons');
+  if (fs.existsSync(rootPublic)) return rootPublic;
+  return localPublic;
+};
+
 // Servir arquivos estáticos (ícones)
-app.use('/icons', express.static(path.join(process.cwd(), 'public', 'icons')));
+app.use('/icons', express.static(getIconsDir()));
 
 // Rotas
 app.use('/categorias',       categoriasRouter);

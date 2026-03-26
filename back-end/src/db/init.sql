@@ -1,7 +1,7 @@
 -- Enums Profissionais (Seguros para re-execução)
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'direcao_transacao') THEN
-        CREATE TYPE direcao_transacao AS ENUM ('gasto', 'receita');
+        CREATE TYPE direcao_transacao AS ENUM ('gasto', 'receita', 'transferencia_saida', 'transferencia_entrada');
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'tipo_conta') THEN
         CREATE TYPE tipo_conta AS ENUM ('carteira', 'credito', 'investimento');

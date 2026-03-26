@@ -269,6 +269,10 @@
   &-danger {
     background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%);
   }
+
+  &-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #4338ca 100%);
+  }
 }
 
 /* Tabelas e Containers */

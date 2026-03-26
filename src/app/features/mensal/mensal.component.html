@@ -404,8 +404,8 @@
                 </span>
               </td>
               <td class="text-end fw-bolder text-nowrap val-cell fs-5"
-                [ngClass]="t.direcao === 'gasto' ? 'text-danger' : 'text-success'">
-                {{ t.direcao === 'gasto' ? '-' : '+' }} {{ t.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                [ngClass]="(t.direcao === 'gasto' || t.direcao === 'transferencia_saida') ? 'text-danger' : 'text-success'">
+                {{ (t.direcao === 'gasto' || t.direcao === 'transferencia_saida') ? '-' : '+' }} {{ t.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
               </td>
               <td class="text-center">
                 <button class="btn-edit-modern"
@@ -1006,8 +1006,8 @@
                   </span>
                 </td>
                 <td class="text-end text-nowrap fs-5 fw-black"
-                  [ngClass]="t.direcao === 'gasto' ? 'text-danger' : 'text-success'">
-                  {{ t.direcao === 'gasto' ? '-' : '+' }} {{ t.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                  [ngClass]="(t.direcao === 'gasto' || t.direcao === 'transferencia_saida') ? 'text-danger' : 'text-success'">
+                  {{ (t.direcao === 'gasto' || t.direcao === 'transferencia_saida') ? '-' : '+' }} {{ t.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                 </td>
                 <td class="text-center pe-4">
                   <button class="btn-edit-modern" title="Editar transação">Editar</button>
@@ -1030,8 +1030,99 @@
   </div>
 </div>
 
+<!-- Modal de Transferência -->
+<div class="modal fade" id="transferenciaModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modern-modal border-primary shadow-lg">
+      <div class="modal-header border-bottom-0 pb-1">
+        <h5 class="modal-title fw-bold text-primary"><span class="normal-emoji">💸</span> Nova Transferência</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body pb-0">
+        <form *ngIf="!isLoadingDependents" (ngSubmit)="salvarTransferencia()" #transferForm="ngForm">
+          <div class="modern-input-group mb-4 mt-2">
+            <input type="text" class="modern-input" id="transDescricao" [(ngModel)]="novaTransferencia.descricao"
+              name="transDescricao" placeholder=" ">
+            <label for="transDescricao" class="modern-label">Descrição (Opcional)</label>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-6 modern-input-group">
+              <input type="text" class="modern-input" id="transValor" required
+                [value]="getFormattedValue(novaTransferencia.valor)" (input)="onCurrencyInput($event, novaTransferencia, 'valor')"
+                name="transValor" placeholder=" ">
+              <label for="transValor" class="modern-label">Valor (R$) *</label>
+            </div>
+            <div class="col-6 modern-input-group">
+              <input type="date" class="modern-input" id="transData" required [(ngModel)]="novaTransferencia.data"
+                name="transData" placeholder=" ">
+              <label for="transData" class="modern-label date-label">Data *</label>
+            </div>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-6 modern-input-group">
+              <div ngbDropdown class="custom-dropdown-select">
+                <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownTransOrigem">
+                  <div class="d-flex align-items-center gap-2">
+                    <app-icon-display *ngIf="getMetodoById(novaTransferencia.conta_origem_id)"
+                      [icon]="getMetodoById(novaTransferencia.conta_origem_id)!.icone" size="1.4rem"
+                      defaultIcon="🪙"></app-icon-display>
+                    <span class="text-truncate">{{ getMetodoById(novaTransferencia.conta_origem_id)?.nome || 'Origem'
+                      }}</span>
+                  </div>
+                  <span class="normal-emoji caret-icon">▼</span>
+                </button>
+                <div ngbDropdownMenu aria-labelledby="dropdownTransOrigem">
+                  <button type="button" ngbDropdownItem *ngFor="let m of metodos"
+                    (click)="novaTransferencia.conta_origem_id = m.id">
+                    <app-icon-display [icon]="m.icone" size="1.5rem" defaultIcon="🪙"></app-icon-display>
+                    <span>{{ m.nome }}</span>
+                  </button>
+                </div>
+              </div>
+              <label class="modern-label date-label">De: (Origem) *</label>
+            </div>
+            <div class="col-6 modern-input-group">
+              <div ngbDropdown class="custom-dropdown-select">
+                <button type="button" class="dropdown-toggle" ngbDropdownToggle id="dropdownTransDestino">
+                  <div class="d-flex align-items-center gap-2">
+                    <app-icon-display *ngIf="getMetodoById(novaTransferencia.conta_destino_id)"
+                      [icon]="getMetodoById(novaTransferencia.conta_destino_id)!.icone" size="1.4rem"
+                      defaultIcon="🪙"></app-icon-display>
+                    <span class="text-truncate">{{ getMetodoById(novaTransferencia.conta_destino_id)?.nome || 'Destino'
+                      }}</span>
+                  </div>
+                  <span class="normal-emoji caret-icon">▼</span>
+                </button>
+                <div ngbDropdownMenu aria-labelledby="dropdownTransDestino">
+                  <button type="button" ngbDropdownItem *ngFor="let m of metodos"
+                    (click)="novaTransferencia.conta_destino_id = m.id">
+                    <app-icon-display [icon]="m.icone" size="1.5rem" defaultIcon="🪙"></app-icon-display>
+                    <span>{{ m.nome }}</span>
+                  </button>
+                </div>
+              </div>
+              <label class="modern-label date-label">Para: (Destino) *</label>
+            </div>
+          </div>
+          <div class="modal-footer px-0 border-0 pt-2 pb-3">
+            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm"
+              [disabled]="!transferForm.valid || isSavingTransferencia">
+              {{ isSavingTransferencia ? 'Processando...' : 'Realizar Transferência' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Botões Flutuantes de Ação -->
 <div class="floating-actions-container" [@fadeSlide]>
+  <button class="btn-modern btn-modern-primary shadow-lg" (click)="openModal('transferenciaModal')">
+    <span class="icon normal-emoji">💸</span>
+    <span class="btn-text">Transferir</span>
+  </button>
   <button class="btn-modern btn-modern-success shadow-lg" data-bs-toggle="modal" data-bs-target="#receitaModal">
     <span class="icon normal-emoji">➕</span>
     <span class="btn-text">Adicionar Receita</span>

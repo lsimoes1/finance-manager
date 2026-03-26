@@ -4,7 +4,7 @@ import { Observable, map } from 'rxjs';
 import { Categoria } from '../models/categoria.model';
 import { MetodoPagamento } from '../models/metodo-pagamento.model';
 import { Periodo } from '../models/periodo.model';
-import { Transacao, TransacaoPayload, TransacaoEditPayload } from '../models/transacao.model';
+import { Transacao, TransacaoPayload, TransacaoEditPayload, TransferenciaPayload } from '../models/transacao.model';
 import { TypeMapper } from '../../shared/utils/type-mapper.util';
 
 @Injectable({
@@ -111,5 +111,9 @@ export class FinanceService {
     if (excluirFuturas) queryParams.push('excluirFuturas=true');
     const queryStr = queryParams.length ? '?' + queryParams.join('&') : '';
     return this.http.delete(`${this.baseUrl}/transacoes/${id}${queryStr}`);
+  }
+
+  transferir(payload: TransferenciaPayload): Observable<any> {
+    return this.http.post(`${this.baseUrl}/transacoes/transferencia`, payload);
   }
 }
